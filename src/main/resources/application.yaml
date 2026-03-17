@@ -1,0 +1,11 @@
+server:
+  port: 2672
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/book_my_show
+    username: postgres
+    password: rathoreji526
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
