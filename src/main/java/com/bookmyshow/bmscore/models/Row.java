@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "rows")
 public class Row extends GlobalFields{
     private String name;
     @Enumerated(EnumType.STRING)

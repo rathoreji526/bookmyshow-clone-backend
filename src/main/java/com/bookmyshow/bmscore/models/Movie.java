@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "movies")
 public class Movie extends GlobalFields{
     private String name;
     private String description;

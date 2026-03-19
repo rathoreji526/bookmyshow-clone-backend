@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Table(name = "theaters")
 public class Theater extends GlobalFields{
     private String name;
     private boolean isActive;

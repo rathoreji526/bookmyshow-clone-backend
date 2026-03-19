@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "users")
 public class User extends GlobalFields{
     @NotNull
     private String name;
