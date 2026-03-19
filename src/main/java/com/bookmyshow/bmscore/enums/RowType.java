@@ -1,7 +1,7 @@
 package com.bookmyshow.bmscore.enums;
 
-public enum MembershipType {
+public enum RowType {
     SILVER,
     GOLD,
-    PLATINUM
+    PREMIUM
 }

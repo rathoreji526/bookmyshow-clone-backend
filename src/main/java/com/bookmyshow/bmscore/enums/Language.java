@@ -1,6 +1,6 @@
 package com.bookmyshow.bmscore.enums;
 
-public enum PreferredLanguage {
+public enum Language {
     ENGLISH,
     HINDI,
     DUTCH,
