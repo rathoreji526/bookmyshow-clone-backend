@@ -12,16 +12,19 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "show_seats")
+@Table(name = "show_seats",
+       uniqueConstraints={
+        @UniqueConstraint(columnNames = {"seat_id" , "show_id"})
+       })
 public class ShowSeat extends GlobalFields{
     @ManyToOne
     private Seat seat;
 
     @ManyToOne
-    private Movie movie;
+    private Show show;
 
     @Enumerated(EnumType.STRING)
-    private SeatStatus seatStatus;
+    private SeatStatus seatStatus = SeatStatus.AVAILABLE;
 
     private LocalDateTime lockTime; //for auto unlock on failed bookings
 }

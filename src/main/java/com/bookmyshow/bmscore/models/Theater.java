@@ -12,7 +12,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "theaters")
 public class Theater extends GlobalFields{
     private String name;
-    private boolean isActive;
+    private boolean isActive = true;
+    private String gstNumber;
+    private String panNumber;
+    private String businessLicenseNumber;
     @ManyToOne
     private Location location;
     @ManyToOne
