@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -25,6 +26,6 @@ public class ShowSeat extends GlobalFields{
 
     @Enumerated(EnumType.STRING)
     private SeatStatus seatStatus = SeatStatus.AVAILABLE;
-
-    private LocalDateTime lockTime; //for auto unlock on failed bookings
+    private UUID lockedBy;
+    private LocalDateTime lockExpiry; //for auto unlock on failed bookings
 }

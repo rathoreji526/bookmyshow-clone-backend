@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "screensr")
+@Table(name = "screens")
 public class Screen extends GlobalFields{
     private String name;
     private boolean isActive;
