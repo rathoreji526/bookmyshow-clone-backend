@@ -3,6 +3,7 @@ package com.bookmyshow.bmscore.service;
 import com.bookmyshow.bmscore.customExceptions.MovieNotFoundException;
 import com.bookmyshow.bmscore.customExceptions.ScreenNotFoundException;
 import com.bookmyshow.bmscore.enums.SeatStatus;
+import com.bookmyshow.bmscore.enums.SeatType;
 import com.bookmyshow.bmscore.enums.ShowStatus;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
@@ -56,6 +57,11 @@ public class ShowService {
                 ss.setSeatStatus(SeatStatus.AVAILABLE);
                 ss.setShow(show);
                 ss.setSeat(seat);
+                //set price of showSeat
+                if(seat.getSeatType().equals(SeatType.PREMIUM))ss.setPrice(dto.getPrice_premium());
+                else if(seat.getSeatType().equals(SeatType.GOLD))ss.setPrice(dto.getPrice_gold());
+                else ss.setPrice(dto.getPrice_silver());
+
                 showSeats.add(ss);
             }
         }

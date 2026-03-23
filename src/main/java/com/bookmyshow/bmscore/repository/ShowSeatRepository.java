@@ -26,4 +26,5 @@ public interface ShowSeatRepository extends JpaRepository<ShowSeat, UUID> {
 """)
     public int lockSeatsBulk(List<UUID> showSeatIDs, UUID userId, LocalDateTime expiry, LocalDateTime now);
     public List<ShowSeat> findByLockedByAndSeatStatus(UUID lockedBy , SeatStatus seatStatus);
+    public List<ShowSeat> findByIdIn(List<UUID> showSeatIds);
 }

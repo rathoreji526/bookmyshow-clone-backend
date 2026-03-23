@@ -14,4 +14,5 @@ public class CreateShowRequestDTO {
     private LocalDateTime endTime;
     private Language language;
     private Format format;
+    private Double price_silver , price_gold , price_premium;
 }

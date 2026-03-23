@@ -9,3 +9,16 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mail:
+    test-connection: true
+    host: smtp.gmail.com
+    port: 587
+    username: movieplace38@gmail.com
+    password: rcuw ssbh ziip tgah
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
