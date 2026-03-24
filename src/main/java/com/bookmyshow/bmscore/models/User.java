@@ -16,12 +16,15 @@ public class User extends GlobalFields{
     @NotNull
     private String name;
     @NotNull
-    @Column(unique = true ,  nullable = false)
+    @Column(unique = true , nullable = false)
+    private String username;
+    @NotNull
+    @Column( nullable = false)
     private String email;
     @NotNull
     @Column(nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-    private boolean isActive;
+    private boolean isActive = true;
 }

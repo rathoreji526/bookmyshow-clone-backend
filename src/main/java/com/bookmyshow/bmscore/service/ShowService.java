@@ -8,13 +8,13 @@ import com.bookmyshow.bmscore.enums.ShowStatus;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
+import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ShowService {
@@ -26,6 +26,8 @@ public class ShowService {
     private ShowSeatRepository showSeatRepo;
     @Autowired
     private MovieRepository movieRepo;
+    @Autowired
+    private CommonUtilities utilities;
 
     @Transactional
     public void createShow(CreateShowRequestDTO dto){
@@ -43,7 +45,7 @@ public class ShowService {
         show.setEndTime(dto.getEndTime());
         show.setShowStatus(ShowStatus.UPCOMING);
         show.setScreen(screen);
-        String id = "SH-"+ UUID.randomUUID().toString().substring(0 , 6);
+        String id = utilities.generateShowSysId();
         show.setSysId(id);
         showRepo.save(show);
 

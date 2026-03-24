@@ -33,7 +33,7 @@ public class Show extends GlobalFields{
 
     private boolean isActive = true;
 
-    public void setSysId(String sysId) {
-        super.sysId = sysId;
-    }
+//    public void setSysId(String sysId) {
+//        super.sysId = sysId;
+//    }
 }

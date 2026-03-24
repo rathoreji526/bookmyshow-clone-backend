@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +20,5 @@ public class Theater extends GlobalFields{
     private String businessLicenseNumber;
     @ManyToOne
     private Location location;
-    @ManyToOne
-    private User owner;
+    private UUID ownerId;
 }
