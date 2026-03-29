@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LocationRepository extends JpaRepository<Location , UUID> {
-    public Optional<Location> findByZipcode(String zipcode);
+    public Optional<Location> findByZipcodeAndAreaAndStreet(String zipcode, String area, String street);
 }

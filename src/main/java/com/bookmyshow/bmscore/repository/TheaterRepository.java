@@ -7,6 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TheaterRepository extends JpaRepository<Theater, UUID> {
-    public Optional<Theater> findByOwnerId(UUID ownerId);
     public boolean existsBySysId(String sysId);
+    public Optional<Theater> findByNameAndLocation_Id(String name, UUID locationId);
 }

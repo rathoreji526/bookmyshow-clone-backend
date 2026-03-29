@@ -55,5 +55,11 @@ public class CommonUtilities {
         }
         return sysId;
     }
+    public String normalizeString(String str){
+        if(str==null)return str;
+        return str.trim()
+                .replaceAll("\\s+"," ")
+                .toUpperCase();
+    }
 
 }

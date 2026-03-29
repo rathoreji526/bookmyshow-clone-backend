@@ -21,6 +21,6 @@ public class Movie extends GlobalFields{
     private Language language;
     private LocalDateTime releaseDate;
     private String posterUrl;
-    private boolean isActive;
+    private boolean isActive = true;
     private Double rating;
 }

@@ -1,13 +1,13 @@
 # 🎟️ BookMyShow Backend Clone
 
 ## 🚀 Project Overview
-Building a scalable backend system inspired by BookMyShow using **Java + Spring Boot + PostgreSQL**.
+A scalable backend system inspired by BookMyShow, built with **Java + Spring Boot + PostgreSQL**.
 
-The focus is on designing real-world backend systems involving:
-- Seat management
-- Concurrency handling
-- Booking lifecycle
-- Transaction flow
+Focus areas include:
+- Seat management & layout per show
+- Concurrency-safe booking
+- Booking lifecycle & transaction simulation
+- Theater, Screen, and Show management
 
 ---
 
@@ -15,19 +15,25 @@ The focus is on designing real-world backend systems involving:
 
 ### 👤 User & Core Entities
 - Role-based User system (USER / OWNER / ADMIN)
-- Global base entity with UUID + timestamps
+- UUID-based global base entity with timestamps
 - Location, Theater, Screen modeling
+- Unique constraints for usernames and normalized entity fields
 
 ---
 
-### 🎬 Show & Seat System
-- Show creation with Movie + Screen mapping
+### 🎬 Movie, Show & Seat System
+- Movies as independent entities (global catalog)
+- Show creation linking **Movie → Screen → Timing**
 - Automatic **ShowSeat generation** for every show
 - Each show acts as an independent **seat universe**
+- Seats support multiple types:
+  - PREMIUM
+  - GOLD
+  - SILVER
 - Seat status:
-    - AVAILABLE
-    - LOCKED
-    - BOOKED
+  - AVAILABLE
+  - LOCKED
+  - BOOKED
 
 ---
 
@@ -40,42 +46,53 @@ The focus is on designing real-world backend systems involving:
 
 ---
 
-### 🧠 Booking & Transaction Design (In Progress)
-- Booking entity to manage booking lifecycle
-- Transaction entity for payment simulation
-- Designed flow:
-    - Booking (PENDING → CONFIRMED / CANCELLED)
-    - Transaction (PENDING → SUCCESS / FAILED)
+### 🧠 Booking & Transaction Design
+- Booking entity tracks lifecycle: `PENDING → CONFIRMED / CANCELLED`
+- Transaction entity simulates payment flow
+- Async payment handling (polling simulation, 10s intervals)
+- Payment result updates booking & seat status accordingly
+
+---
+
+### 🏢 Theater & Screen Management
+- Theater registration with address/location
+- Flexible screen creation with **row & seat layout**
+- Supports multiple seat types and non-contiguous seat numbers
+- Normalization applied to names for consistency and uniqueness
 
 ---
 
 ## ⚙️ Tech Stack
-- Java
+- Java 17+
 - Spring Boot
 - Spring Data JPA (Hibernate)
 - PostgreSQL
 - Lombok
+- JUnit / Mockito (for testing)
 
 ---
 
 ## 🧠 Key Concepts Implemented
 - UUID-based scalable design
-- Entity relationships (OneToMany / ManyToOne)
+- Entity relationships: OneToMany / ManyToOne / ManyToMany
 - Transaction management (`@Transactional`)
-- Concurrency handling (atomic updates)
+- Concurrency handling (atomic updates, seat locking)
 - Bulk operations for performance
 - Separation of static vs dynamic data:
-    - Seat → static
-    - ShowSeat → dynamic
+  - Seat → static per screen
+  - ShowSeat → dynamic per show
+- Normalization for unique search fields (movies, screens, seats)
 
 ---
 
-## 🔄 System Flow (High Level)
+## 🔄 High-Level System Flow
 
 ```text
-User selects seats
+User selects movie & show timing
         ↓
-Seat locking (atomic, with expiry)
+Seats fetched for the show
+        ↓
+Seat locking (atomic, with 5-min expiry)
         ↓
 Booking created (PENDING)
         ↓

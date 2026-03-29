@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface ScreenRepository extends JpaRepository<Screen, UUID> {
     public Optional<Screen> findBySysId(String sysId);
+    public Optional<Screen> findByNameAndTheaterId(String name , UUID theaterId);
 }

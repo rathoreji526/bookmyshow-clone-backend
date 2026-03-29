@@ -13,10 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "locations")
 public class Location extends GlobalFields{
-    private String completeAddress;
     private String country;
     private String state;
     private String city;
-    @Column(unique = true)
+    private String area;
+    private String street;
+    private String landmark;
     private String zipcode;
 }

@@ -30,7 +30,7 @@ public class BookingService {
     TransactionRepository transactionRepo;
 
     @Transactional
-    public void initiatePayment(InitiatePaymentRequestDTO dto) {
+    public UUID initiatePayment(InitiatePaymentRequestDTO dto) {
         Set<UUID> showSeatIDs = new HashSet<>(dto.getShowSeatIds());
         List<ShowSeat> showSeatList = showSeatRepo.findByIdIn(dto.getShowSeatIds());
 
@@ -66,6 +66,7 @@ public class BookingService {
         booking.setTransactionId(transaction.getId());
         bookingRepo.save(booking);
 
+        return transaction.getId();
     }
 
     @Transactional

@@ -20,5 +20,6 @@ public class Theater extends GlobalFields{
     private String businessLicenseNumber;
     @ManyToOne
     private Location location;
-    private UUID ownerId;
+    @ManyToOne
+    private User ownerId;
 }
