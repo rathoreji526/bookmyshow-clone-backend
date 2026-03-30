@@ -1,6 +1,7 @@
 package com.bookmyshow.bmscore.models;
 
 import com.bookmyshow.bmscore.enums.SeatStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,9 +20,11 @@ import java.util.UUID;
        })
 public class ShowSeat extends GlobalFields{
     private double price;
+    @JsonBackReference
     @ManyToOne
     private Seat seat;
 
+    @JsonBackReference
     @ManyToOne
     private Show show;
 

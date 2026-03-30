@@ -2,6 +2,7 @@ package com.bookmyshow.bmscore.models;
 
 import com.bookmyshow.bmscore.enums.SeatStatus;
 import com.bookmyshow.bmscore.enums.SeatType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,8 @@ public class Seat extends GlobalFields{
     private String seatNumber;
     @Enumerated(EnumType.STRING)
     private SeatType seatType;
-    private boolean isActive;
+    private boolean isActive=true;
+    @JsonBackReference
     @ManyToOne
     private Row row;
 }

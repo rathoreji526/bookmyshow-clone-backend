@@ -7,7 +7,9 @@ import com.bookmyshow.bmscore.models.Row;
 import com.bookmyshow.bmscore.models.Screen;
 import com.bookmyshow.bmscore.models.Seat;
 import com.bookmyshow.bmscore.models.Theater;
+import com.bookmyshow.bmscore.repository.RowRepository;
 import com.bookmyshow.bmscore.repository.ScreenRepository;
+import com.bookmyshow.bmscore.repository.SeatRepository;
 import com.bookmyshow.bmscore.repository.TheaterRepository;
 import com.bookmyshow.bmscore.requestDTO.CreateScreenDTO;
 import com.bookmyshow.bmscore.requestDTO.SeatLayoutDTO;
@@ -25,6 +27,10 @@ public class ScreenService {
     @Autowired
     private ScreenRepository screenRepo;
     @Autowired
+    private SeatRepository seatRepo;
+    @Autowired
+    private RowRepository rowRepo;
+    @Autowired
     CommonUtilities utilities;
     @Autowired
     private TheaterRepository theaterRepo;
@@ -33,6 +39,7 @@ public class ScreenService {
     public void createScreen(CreateScreenDTO dto) {
 
         /// if screen is already exists
+
         if(screenRepo.findByNameAndTheaterId(utilities.normalizeString(dto.getScreenName()), dto.getTheaterId()).isPresent()) {
             throw new ScreenNameAlreadyExistsException("Screen name already exists!");
         }
@@ -71,16 +78,18 @@ public class ScreenService {
                 seat.setSeatNumber(seatName);
                 seat.setRow(row);
                 seat.setSeatType(layout.getSeatType());
-                row.getSeats().add(seat);
+                row.addSeat(seat);
             }
             row.getSeats().sort(Comparator.comparingInt(seat ->
                     Integer.parseInt(seat.getSeatNumber().replaceAll("[^0-9]", ""))
             ));
-
         }
         Screen screen = new Screen();
         screen.setName(utilities.normalizeString(dto.getScreenName()));
-        screen.setRows(new ArrayList<>(rowMap.values()));
+
+        for(Row row : rowMap.values()){
+            screen.addRow(row);
+        }
         screen.setTheater(theater);
         screenRepo.save(screen);
     }

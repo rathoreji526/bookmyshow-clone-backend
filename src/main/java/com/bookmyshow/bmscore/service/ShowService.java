@@ -1,21 +1,26 @@
 package com.bookmyshow.bmscore.service;
 
+import com.bookmyshow.bmscore.customExceptions.InactiveScreenException;
 import com.bookmyshow.bmscore.customExceptions.MovieNotFoundException;
 import com.bookmyshow.bmscore.customExceptions.ScreenNotFoundException;
+import com.bookmyshow.bmscore.customExceptions.TheaterNotExistsException;
 import com.bookmyshow.bmscore.enums.SeatStatus;
 import com.bookmyshow.bmscore.enums.SeatType;
 import com.bookmyshow.bmscore.enums.ShowStatus;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
+import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ShowService {
     @Autowired
@@ -27,15 +32,22 @@ public class ShowService {
     @Autowired
     private MovieRepository movieRepo;
     @Autowired
+    private TheaterRepository theaterRepo;
+    @Autowired
     private CommonUtilities utilities;
 
     @Transactional
     public void createShow(CreateShowRequestDTO dto){
-        Movie movie = movieRepo.findBySysId(dto.getMovieId())
+        Theater theater = theaterRepo.findById(dto.getTheaterId())
+                .orElseThrow(()->new TheaterNotExistsException("Theater not found"));
+        Movie movie = movieRepo.findById(dto.getMovieId())
                 .orElseThrow(()->new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found."));
-        Screen screen = screenRepo.findBySysId(dto.getScreenId())
+        Screen screen = screenRepo.findById(dto.getScreenId())
                 .orElseThrow(()->new ScreenNotFoundException("Screen with id: "+dto.getScreenId()+" not found."));
 
+        if(!screen.isActive()){
+            throw new InactiveScreenException("Provided screen is not active.");
+        }
         /// show creation
         Show show = new Show();
         show.setMovie(movie);
@@ -51,6 +63,7 @@ public class ShowService {
 
         /// seat mapping
         List<ShowSeat>  showSeats = new ArrayList<>();
+        log.info("rowz size: "+ screen.getRows().size());
         for (Row row : screen.getRows()) {
             for(Seat seat : row.getSeats()) {
                 if(!seat.isActive())continue;
@@ -67,6 +80,14 @@ public class ShowService {
                 showSeats.add(ss);
             }
         }
+        log.info(showSeats.size()+" ");
         showSeatRepo.saveAll(showSeats);
+    }
+
+    public List<Show> findShow(FindShowDTO dto){
+        if(movieRepo.findById(dto.getMovieId()).isEmpty()){
+            throw new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found.");
+        }
+        return showRepo.findByMovieIdAndStartTimeAfter(dto.getMovieId() , dto.getDate());
     }
 }

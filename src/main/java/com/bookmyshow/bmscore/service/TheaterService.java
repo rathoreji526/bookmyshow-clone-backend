@@ -13,11 +13,13 @@ import com.bookmyshow.bmscore.requestDTO.LocationRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.RegisterTheaterRequestDTO;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class TheaterService {
     @Autowired
@@ -62,7 +64,8 @@ public class TheaterService {
         theater.setGstNumber(dto.getGstNumber());
         theater.setPanNumber(dto.getPanNumber());
         theater.setBusinessLicenseNumber(dto.getBusinessLicenseNumber());
-        theater.setOwnerId(user);
+        log.info(user.toString());
+        theater.setOwner(user);
         theater.setLocation(location);
 
         if(theaterRepo.findByNameAndLocation_Id(utilities.normalizeString(dto.getTheaterName()), location.getId()).isPresent()){

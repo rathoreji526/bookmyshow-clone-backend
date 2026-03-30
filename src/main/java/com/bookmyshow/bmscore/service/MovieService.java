@@ -30,12 +30,13 @@ public class MovieService {
         movie.setDuration(dto.getDuration());
         movie.setRating(dto.getRating());
         movie.setReleaseDate(dto.getReleaseDate());
+        movie.setLanguage(dto.getLanguage());
         if(movieRepo.existsByName(movieName)){
             throw new MovieAlreadyExistsException("Movie already exists.");
         }
         movieRepo.save(movie);
 
-        return "Movie added successfully";
+        return "Movie added successfully.";
     }
 
     public List<MovieIdName> findAllMovieIdAndName(){

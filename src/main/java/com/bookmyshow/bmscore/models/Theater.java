@@ -1,5 +1,6 @@
 package com.bookmyshow.bmscore.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,8 +19,10 @@ public class Theater extends GlobalFields{
     private String gstNumber;
     private String panNumber;
     private String businessLicenseNumber;
+    @JsonBackReference
     @ManyToOne
     private Location location;
+    @JsonBackReference
     @ManyToOne
-    private User ownerId;
+    private User owner;
 }

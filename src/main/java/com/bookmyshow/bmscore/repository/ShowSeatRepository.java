@@ -1,6 +1,5 @@
 package com.bookmyshow.bmscore.repository;
 
-import com.bookmyshow.bmscore.enums.SeatStatus;
 import com.bookmyshow.bmscore.models.ShowSeat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,6 +24,6 @@ public interface ShowSeatRepository extends JpaRepository<ShowSeat, UUID> {
     )
 """)
     public int lockSeatsBulk(List<UUID> showSeatIDs, UUID userId, LocalDateTime expiry, LocalDateTime now);
-    public List<ShowSeat> findByLockedByAndSeatStatus(UUID lockedBy , SeatStatus seatStatus);
     public List<ShowSeat> findByIdIn(List<UUID> showSeatIds);
+    public List<ShowSeat> findByShowId(UUID showId);
 }

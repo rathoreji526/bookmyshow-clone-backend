@@ -5,11 +5,13 @@ import com.bookmyshow.bmscore.enums.Language;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class CreateShowRequestDTO {
-    private String movieId;
-    private String screenId;
+    private UUID theaterId;
+    private UUID movieId;
+    private UUID screenId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Language language;
