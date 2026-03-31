@@ -9,6 +9,7 @@ import jakarta.transaction.InvalidTransactionException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class TransactionService {
         }
     }
 
-//    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 10000)
     public void checkPendingTransactions(){
         List<Transaction> pendingTransactionsList = transactionRepo.findByProcessedFalse();
 

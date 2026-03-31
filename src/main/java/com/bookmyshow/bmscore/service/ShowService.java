@@ -1,9 +1,6 @@
 package com.bookmyshow.bmscore.service;
 
-import com.bookmyshow.bmscore.customExceptions.InactiveScreenException;
-import com.bookmyshow.bmscore.customExceptions.MovieNotFoundException;
-import com.bookmyshow.bmscore.customExceptions.ScreenNotFoundException;
-import com.bookmyshow.bmscore.customExceptions.TheaterNotExistsException;
+import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.enums.SeatStatus;
 import com.bookmyshow.bmscore.enums.SeatType;
 import com.bookmyshow.bmscore.enums.ShowStatus;
@@ -44,6 +41,16 @@ public class ShowService {
                 .orElseThrow(()->new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found."));
         Screen screen = screenRepo.findById(dto.getScreenId())
                 .orElseThrow(()->new ScreenNotFoundException("Screen with id: "+dto.getScreenId()+" not found."));
+        List<Show> overlappingShows = showRepo.findOverlappingShows(dto.getScreenId(), dto.getStartTime().minusMinutes(15), dto.getEndTime().plusMinutes(15));
+
+        if(!overlappingShows.isEmpty()){
+            StringBuilder error = new StringBuilder("Shows are overlapping can not create show at this time!\n");
+            for(Show show : overlappingShows){
+                String message = "Start time:" + show.getStartTime()+"\nEnd time:" + show.getEndTime()+"\n";
+                error.append(message);
+            }
+            throw new OverlappingShowsException(error.toString());
+        }
 
         if(!screen.isActive()){
             throw new InactiveScreenException("Provided screen is not active.");
@@ -63,7 +70,7 @@ public class ShowService {
 
         /// seat mapping
         List<ShowSeat>  showSeats = new ArrayList<>();
-        log.info("rowz size: "+ screen.getRows().size());
+        log.info("rows size: "+ screen.getRows().size());
         for (Row row : screen.getRows()) {
             for(Seat seat : row.getSeats()) {
                 if(!seat.isActive())continue;

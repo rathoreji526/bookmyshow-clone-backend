@@ -3,14 +3,18 @@ package com.bookmyshow.bmscore.service;
 import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.enums.BookingStatus;
 import com.bookmyshow.bmscore.enums.SeatStatus;
+import com.bookmyshow.bmscore.enums.TransactionStatus;
 import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.models.ShowSeat;
 import com.bookmyshow.bmscore.models.Transaction;
+import com.bookmyshow.bmscore.models.User;
 import com.bookmyshow.bmscore.repository.BookingRepository;
 import com.bookmyshow.bmscore.repository.ShowSeatRepository;
 import com.bookmyshow.bmscore.repository.TransactionRepository;
+import com.bookmyshow.bmscore.repository.UserRepository;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +24,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class BookingService {
     @Autowired
-    BookingRepository bookingRepo;
+    private BookingRepository bookingRepo;
     @Autowired
-    ShowSeatRepository showSeatRepo;
+    private ShowSeatRepository showSeatRepo;
     @Autowired
-    TransactionRepository transactionRepo;
+    private TransactionRepository transactionRepo;
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private EmailService emailService;
 
     @Transactional
     public UUID initiatePayment(InitiatePaymentRequestDTO dto) {
@@ -40,14 +49,14 @@ public class BookingService {
         }
 
         for (ShowSeat ss : showSeatList) {
+            if(ss.getLockedBy()==null || !ss.getSeatStatus().equals(SeatStatus.LOCKED)){
+                throw new SeatNotLockedException("Seat is not locked! Please go back to the seat selection page and retry.");
+            }
             if (!ss.getLockedBy().equals(dto.getUserId())) {
                 throw new SeatAlreadyBookedOrLockedException("Seat booked or locked by another user");
             }
             if (ss.getLockExpiry().isBefore(LocalDateTime.now())) {
                 throw new BookingTimeoutException("Booking timed out");
-            }
-            if (!ss.getSeatStatus().equals(SeatStatus.LOCKED)) {
-                throw new SeatNotLockedException("Seat is not reserved.");
             }
             bookingValue += ss.getPrice();
         }
@@ -55,6 +64,7 @@ public class BookingService {
         transaction.setUserId(dto.getUserId());
         transaction.setAmount(bookingValue);
         transaction.setExpiry(LocalDateTime.now().plusMinutes(5));
+        transaction.setStatus(TransactionStatus.PENDING);
 
         Booking booking = new Booking();
         booking.setUserId(dto.getUserId());
@@ -73,10 +83,13 @@ public class BookingService {
     public void handleConfirmedTransaction(UUID txnId) {
         Booking booking = bookingRepo.findByTransactionId(txnId)
                 .orElseThrow(()-> new BookingNotFoundException("Booking not found for transaction id: " + txnId));
+        User user = userRepo.findById(booking.getUserId())
+                .orElseThrow(()->new InvalidUserException("User doesn't exist"));
         if(!booking.getBookingStatus().equals(BookingStatus.PENDING)){
             return;
         }
         List<ShowSeat> ssList =  showSeatRepo.findByIdIn(booking.getBookedSeats());
+        StringBuilder bookedTickets = new StringBuilder();
         for(ShowSeat ss : ssList) {
             if(!ss.getSeatStatus().equals(SeatStatus.LOCKED)) {
                 throw new SeatNotLockedException("Seat is not in locked state.");
@@ -84,11 +97,22 @@ public class BookingService {
             ss.setSeatStatus(SeatStatus.BOOKED);
             ss.setLockedBy(null);
             ss.setLockExpiry(null);
+            bookedTickets.append(ss.getId()).append("\n");
         }
         showSeatRepo.saveAll(ssList);
         booking.setBookingStatus(BookingStatus.CONFIRMED);
         booking.setBookingExpiry(null);
         bookingRepo.save(booking);
+        emailService.sendEmail(user.getEmail() , "Booking confirmed.", "Hi "+user.getName()+",\n"
+                +"Your ticket has been successfully booked. \uD83C\uDF89\n"
+                +"Here are your booking details:\n"+bookedTickets.toString()
+                +"Please keep this Ticket ID safe. You will need it for verification at the entry.\n"
+                +"We’ll soon send you a QR code for faster check-in.\n"
+                +"Enjoy your show! \uD83C\uDF7F\n" +
+                "\n" +
+                "Regards,  \n" +
+                "BookMyShow Team");
+        log.info("Booking confirmed and tickets sent successfully.");
     }
 
     @Transactional
