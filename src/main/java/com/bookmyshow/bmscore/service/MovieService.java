@@ -1,9 +1,11 @@
 package com.bookmyshow.bmscore.service;
 
+import com.bookmyshow.bmscore.customExceptions.InvalidInputException;
 import com.bookmyshow.bmscore.customExceptions.MovieAlreadyExistsException;
 import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.repository.MovieRepository;
 import com.bookmyshow.bmscore.requestDTO.AddMovieDTO;
+import com.bookmyshow.bmscore.requestDTO.DateRangeDTO;
 import com.bookmyshow.bmscore.requestDTO.MovieIdName;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +41,18 @@ public class MovieService {
         return "Movie added successfully.";
     }
 
+    public List<Movie> findByDateRange(DateRangeDTO dto){
+        if(dto.getStartDate().isAfter(dto.getEndDate()) || (dto.getStartDate()==null || dto.getEndDate()==null)){
+            throw new InvalidInputException("Please enter a valid date range.");
+        }
+        List<Movie> movies =  movieRepo.findByReleaseDateBetween(dto.getStartDate() , dto.getEndDate());
+        return movies;
+    }
+
     public List<MovieIdName> findAllMovieIdAndName(){
         return movieRepo.findAllIdAndName();
     }
 }
-//fetch by movie name
-//shows on particular date
+
+
 

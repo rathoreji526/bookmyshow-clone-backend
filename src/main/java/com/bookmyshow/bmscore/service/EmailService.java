@@ -21,7 +21,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    @EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+//    @EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
     public void send(){
         this.sendEmail("mr.rathoreji52@gmail.com" , "Application started" , "Hello mr.rathoreji52@gmail.com\nYour application is started now.");
         log.info("Email successfully sent.");

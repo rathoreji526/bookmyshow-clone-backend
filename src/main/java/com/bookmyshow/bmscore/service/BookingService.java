@@ -4,20 +4,15 @@ import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.enums.BookingStatus;
 import com.bookmyshow.bmscore.enums.SeatStatus;
 import com.bookmyshow.bmscore.enums.TransactionStatus;
-import com.bookmyshow.bmscore.models.Booking;
-import com.bookmyshow.bmscore.models.ShowSeat;
-import com.bookmyshow.bmscore.models.Transaction;
-import com.bookmyshow.bmscore.models.User;
-import com.bookmyshow.bmscore.repository.BookingRepository;
-import com.bookmyshow.bmscore.repository.ShowSeatRepository;
-import com.bookmyshow.bmscore.repository.TransactionRepository;
-import com.bookmyshow.bmscore.repository.UserRepository;
+import com.bookmyshow.bmscore.models.*;
+import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -37,9 +32,15 @@ public class BookingService {
     private UserRepository userRepo;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ShowRepository showRepo;
+    @Autowired
+    private TheaterRepository theaterRepo;
 
     @Transactional
     public UUID initiatePayment(InitiatePaymentRequestDTO dto) {
+        User user = userRepo.findById(dto.getUserId())
+                .orElseThrow(() -> new InvalidUserException("User not found"));
         Set<UUID> showSeatIDs = new HashSet<>(dto.getShowSeatIds());
         List<ShowSeat> showSeatList = showSeatRepo.findByIdIn(dto.getShowSeatIds());
 
@@ -60,6 +61,10 @@ public class BookingService {
             }
             bookingValue += ss.getPrice();
         }
+        Show show = showRepo.findById(showSeatList.get(0).getShow().getId())
+                .orElseThrow(() -> new InvalidShowIdException("Show not found"));
+
+
         Transaction transaction = new Transaction();
         transaction.setUserId(dto.getUserId());
         transaction.setAmount(bookingValue);
@@ -67,13 +72,14 @@ public class BookingService {
         transaction.setStatus(TransactionStatus.PENDING);
 
         Booking booking = new Booking();
-        booking.setUserId(dto.getUserId());
-        booking.setBookedSeats(dto.getShowSeatIds());
+        booking.setUser(user);
+        booking.setBookedSeats(showSeatList);
         booking.setTotalPrice(bookingValue);
         booking.setBookingExpiry(LocalDateTime.now().plusMinutes(10));
+        booking.setShow(show);
 
         transactionRepo.save(transaction);
-        booking.setTransactionId(transaction.getId());
+        booking.setTransaction(transaction);
         bookingRepo.save(booking);
 
         return transaction.getId();
@@ -83,12 +89,18 @@ public class BookingService {
     public void handleConfirmedTransaction(UUID txnId) {
         Booking booking = bookingRepo.findByTransactionId(txnId)
                 .orElseThrow(()-> new BookingNotFoundException("Booking not found for transaction id: " + txnId));
-        User user = userRepo.findById(booking.getUserId())
-                .orElseThrow(()->new InvalidUserException("User doesn't exist"));
+
+        User user = booking.getUser();
+        log.info("Show id: " + booking.getShow().getId());
+        Show show = booking.getShow();
+        log.info("Theater id: "+show.getScreen().getTheater().getId());
+        Theater theater = theaterRepo.findById(show.getScreen().getTheater().getId())
+                .orElseThrow(()-> new InvalidTheaterIdException("Unable to find theater"));
+
         if(!booking.getBookingStatus().equals(BookingStatus.PENDING)){
             return;
         }
-        List<ShowSeat> ssList =  showSeatRepo.findByIdIn(booking.getBookedSeats());
+        List<ShowSeat> ssList =  booking.getBookedSeats();
         StringBuilder bookedTickets = new StringBuilder();
         for(ShowSeat ss : ssList) {
             if(!ss.getSeatStatus().equals(SeatStatus.LOCKED)) {
@@ -97,7 +109,7 @@ public class BookingService {
             ss.setSeatStatus(SeatStatus.BOOKED);
             ss.setLockedBy(null);
             ss.setLockExpiry(null);
-            bookedTickets.append(ss.getId()).append("\n");
+            bookedTickets.append(ss.getSeat().getSeatNumber()).append(" ");
         }
         showSeatRepo.saveAll(ssList);
         booking.setBookingStatus(BookingStatus.CONFIRMED);
@@ -105,7 +117,12 @@ public class BookingService {
         bookingRepo.save(booking);
         emailService.sendEmail(user.getEmail() , "Booking confirmed.", "Hi "+user.getName()+",\n"
                 +"Your ticket has been successfully booked. \uD83C\uDF89\n"
-                +"Here are your booking details:\n"+bookedTickets.toString()
+                +"Here are your booking details:\n"
+                +"Booking id: "+booking.getId()+"\n"
+                +"Movie name: "+show.getMovie().getName()+"\n"
+                +"Theater: "+theater.getName()+"\n"
+                +"Show timing: "+show.getStartTime() +"-"+show.getEndTime()+"\n"
+                +"Seats: "+bookedTickets.toString()+"\n"
                 +"Please keep this Ticket ID safe. You will need it for verification at the entry.\n"
                 +"We’ll soon send you a QR code for faster check-in.\n"
                 +"Enjoy your show! \uD83C\uDF7F\n" +
@@ -122,7 +139,7 @@ public class BookingService {
         if(!booking.getBookingStatus().equals(BookingStatus.PENDING)){
             return;
         }
-        List<ShowSeat> ssList = showSeatRepo.findByIdIn(booking.getBookedSeats());
+        List<ShowSeat> ssList = booking.getBookedSeats();
         for(ShowSeat ss : ssList) {
             if(!ss.getSeatStatus().equals(SeatStatus.LOCKED)) {
                 throw new SeatNotLockedException("Seat is not in locked state.");
@@ -135,6 +152,12 @@ public class BookingService {
         booking.setBookingStatus(BookingStatus.CANCELLED);
         booking.setBookingExpiry(null);
         bookingRepo.save(booking);
+    }
+    public List<Booking> findAllBookings(UUID userId){
+        if(!userRepo.existsById(userId)){
+            throw new InvalidUserException("User not found");
+        }
+        return bookingRepo.findByUserId(userId);
     }
 
         //if transaction is confirmed change the booking status to confirm and send all the seat ids on email

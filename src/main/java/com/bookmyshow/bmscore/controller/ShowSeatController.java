@@ -22,7 +22,7 @@ public class ShowSeatController {
     public ResponseEntity<String> lockSeat(@RequestBody SeatLockingRequestDTO dto){
         try{
             showSeatService.lockSeat(dto);
-            return new ResponseEntity<>("" ,  HttpStatus.OK);
+            return new ResponseEntity<>("Seats locked successfully." ,  HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

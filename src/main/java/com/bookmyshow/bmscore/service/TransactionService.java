@@ -49,7 +49,9 @@ public class TransactionService {
         log.info("running scheduler");
         for(Transaction transaction : pendingTransactionsList){
             if(transaction.getStatus().equals(TransactionStatus.COMPLETED)){
+                log.info(transaction.toString());
                 bookingService.handleConfirmedTransaction(transaction.getId());
+                log.info(transaction.toString());
                 transaction.setProcessed(true);
             }
             else if(transaction.getStatus().equals(TransactionStatus.CANCELED)){

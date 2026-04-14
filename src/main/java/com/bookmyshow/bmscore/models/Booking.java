@@ -1,7 +1,10 @@
 package com.bookmyshow.bmscore.models;
 
 import com.bookmyshow.bmscore.enums.BookingStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,12 +16,21 @@ import java.util.UUID;
 @Entity
 @Table(name = "bookings")
 public class Booking extends GlobalFields{
-    private UUID userId;
-    private UUID showId;
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Show show;
     private Double totalPrice;
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus =  BookingStatus.PENDING;
-    private List<UUID> bookedSeats;
+    @OneToMany
+    @JsonManagedReference
+    private List<ShowSeat> bookedSeats;
     private LocalDateTime bookingExpiry;
-    private UUID transactionId;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Transaction transaction;
 }

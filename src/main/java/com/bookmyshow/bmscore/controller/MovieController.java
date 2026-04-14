@@ -1,6 +1,8 @@
 package com.bookmyshow.bmscore.controller;
 
+import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.requestDTO.AddMovieDTO;
+import com.bookmyshow.bmscore.requestDTO.DateRangeDTO;
 import com.bookmyshow.bmscore.requestDTO.MovieIdName;
 import com.bookmyshow.bmscore.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,18 @@ import java.util.List;
 public class MovieController {
     @Autowired
     private MovieService movieService;
+
+
+    @GetMapping("/findByDateRange")
+    public ResponseEntity<?> findByDateRange(@RequestBody DateRangeDTO dto){
+        try{
+            List<Movie> movies =  movieService.findByDateRange(dto);
+            return new ResponseEntity<>(movies , HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>("Unable to fetch movies" , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @PostMapping("/add-movie")
     public ResponseEntity<String> addMovie(@RequestBody AddMovieDTO dto){

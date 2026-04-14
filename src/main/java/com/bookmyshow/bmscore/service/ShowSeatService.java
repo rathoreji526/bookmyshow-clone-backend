@@ -7,13 +7,16 @@ import com.bookmyshow.bmscore.repository.ShowRepository;
 import com.bookmyshow.bmscore.repository.ShowSeatRepository;
 import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class ShowSeatService {
     @Autowired
@@ -23,14 +26,16 @@ public class ShowSeatService {
 
     @Transactional
     public void lockSeat(SeatLockingRequestDTO dto){
-        int bookedSeats = showSeatRepo.lockSeatsBulk(
+        int lockedSeats = showSeatRepo.lockSeatsBulk(
                 dto.getSeatIDs(),
                 dto.getUserID(),
+                dto.getShowID(),
                 LocalDateTime.now().plusMinutes(5),
                 LocalDateTime.now());
 
-        if(bookedSeats != dto.getSeatIDs().size()) {
-            throw new SeatAlreadyBookedOrLockedException("Some seats already booked/locked");
+        if(lockedSeats != dto.getSeatIDs().size()) {
+            log.info("Only "+lockedSeats+" seats are locked");
+            throw new SeatAlreadyBookedOrLockedException("Some seats already booked/locked!");
         }
 
     }
@@ -39,5 +44,11 @@ public class ShowSeatService {
             throw new InvalidShowIdException("Wrong show id!");
         }
         return showSeatRepo.findByShowId(showId);
+    }
+
+    @Scheduled(fixedDelay = 1000*60*1)
+    public void autoReleaseSeats(){
+        int releasedSeats = showSeatRepo.releaseLockedSeat(LocalDateTime.now());
+        log.info("Released "+releasedSeats+" seats.");
     }
 }

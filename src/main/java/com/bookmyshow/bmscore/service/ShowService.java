@@ -12,10 +12,13 @@ import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -34,7 +37,7 @@ public class ShowService {
     private CommonUtilities utilities;
 
     @Transactional
-    public void createShow(CreateShowRequestDTO dto){
+    public UUID createShow(CreateShowRequestDTO dto){
         Theater theater = theaterRepo.findById(dto.getTheaterId())
                 .orElseThrow(()->new TheaterNotExistsException("Theater not found"));
         Movie movie = movieRepo.findById(dto.getMovieId())
@@ -89,6 +92,7 @@ public class ShowService {
         }
         log.info(showSeats.size()+" ");
         showSeatRepo.saveAll(showSeats);
+        return show.getId();
     }
 
     public List<Show> findShow(FindShowDTO dto){
@@ -96,5 +100,11 @@ public class ShowService {
             throw new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found.");
         }
         return showRepo.findByMovieIdAndStartTimeAfter(dto.getMovieId() , dto.getDate());
+    }
+
+    @Scheduled(fixedRate = 1000*60*5)
+    public void updateShowStatus(){
+        int modified = showRepo.updateShowStatus(LocalDateTime.now());
+        log.info("{} shows updated", modified);
     }
 }

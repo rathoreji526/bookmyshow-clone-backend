@@ -1,0 +1,7 @@
+scheduling system...
+
+1. if seat locking is expired change -> seat status to available, locked by null(runs in every 2 minutes)
+     -> COMPLETED
+2. if show's start time is less than current time make it -> ongoing and if end time is less than current time mark as       closed.(runs in every 15 minutes)
+     -> COMPLETED
+3.

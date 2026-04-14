@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/apis/show")
@@ -20,8 +21,8 @@ public class ShowController {
     @PostMapping("/create-show")
     public ResponseEntity<String> createShow(@RequestBody CreateShowRequestDTO dto){
         try{
-            showService.createShow(dto);
-            return new ResponseEntity<>("Show created successfully.", HttpStatus.CREATED);
+            UUID showId = showService.createShow(dto);
+            return new ResponseEntity<>("Show created successfully.\nShow id: "+showId, HttpStatus.CREATED);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
