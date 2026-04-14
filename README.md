@@ -1,130 +1,126 @@
-# 🎟️ BookMyShow Backend Clone
+# 🎟️ BookMyShow Backend Clone (Scalable Ticket Booking System)
 
 ## 🚀 Project Overview
 
-A scalable backend system inspired by BookMyShow, built with **Java + Spring Boot + PostgreSQL**.
+A production-inspired backend system modeled after BookMyShow, built using **Java + Spring Boot + PostgreSQL**.
 
-This project focuses on designing a **real-world ticket booking system** with emphasis on:
+This project focuses on solving **real-world backend challenges**, especially:
 
-* Concurrency-safe seat booking
+* High concurrency seat booking
+* Transaction consistency
 * Scalable system design
-* Clean architecture & separation of concerns
-* Realistic booking lifecycle simulation
+* Clean architecture
 
 ---
 
-## 🧩 System Modules
+## 🔥 Key Highlights
+
+* ⚡ **Concurrency-safe seat locking (DB-level atomic update)**
+* 🎯 **Bulk operations for performance optimization**
+* 🧠 **State-driven booking lifecycle (AVAILABLE → LOCKED → BOOKED)**
+* ⏱ **Auto seat unlock with expiry handling**
+* 💳 **End-to-end booking + payment simulation**
+* 🏗 **Clean layered architecture (Controller → Service → Repository)**
+
+---
+
+## 🧩 Core Features
 
 ### 👤 User Management
 
-* Role-based access control (**USER / OWNER / ADMIN**)
-* Unique username constraint
-* UUID-based entity identification
-* Base entity with audit fields (createdAt, updatedAt)
+* Role-based system (**USER / OWNER / ADMIN**)
+* UUID-based entity IDs
+* Audit fields (`createdAt`, `updatedAt`)
+* User registration & management APIs
 
 ---
 
 ### 🎬 Movie Management
 
-* Movies stored as a **global catalog**
-* Metadata includes:
-
-  * Name, Duration, Language, Release Date, Rating
-* Decoupled from shows (same movie can run in multiple theaters)
+* Global movie catalog
+* Metadata: name, duration, language, rating, release date
+* Decoupled from shows (same movie → multiple shows)
 
 ---
 
-### 🏢 Theater & Screen Management
+### 🏢 Theater & Screen System
 
-* Theater registration with:
-
-  * GST, PAN, Business License
-  * Location mapping
-* Screen management:
-
-  * Multiple screens per theater
-  * Custom seat layout per screen
-* Flexible seat configuration:
-
-  * Row-based layout (A, B, C...)
-  * Configurable seat ranges
+* Theater onboarding with GST, PAN, license
+* Multiple screens per theater
+* Flexible seat layouts (row-based structure)
 
 ---
 
-### 💺 Seat & ShowSeat Design (Core Concept 🔥)
+### 💺 Seat & ShowSeat (Core Design 🔥)
 
-#### Static vs Dynamic Separation
+> Separation of static vs dynamic seat data
 
-* **Seat** → Fixed per screen (structure)
-* **ShowSeat** → Created per show (state)
+* **Seat** → static (per screen)
+* **ShowSeat** → dynamic (per show)
 
-#### Seat Types:
-
-* SILVER
-* GOLD
-* PREMIUM
-
-#### Seat Status:
-
-* AVAILABLE
-* LOCKED
-* BOOKED
-
-👉 Each show acts as an **independent seat universe**
+Each show acts as an independent **seat universe**
 
 ---
 
 ### 🎭 Show Management
 
-* Show created using:
-
-  * Theater + Screen + Movie + Timing
-* Automatic **ShowSeat initialization** during show creation
-* Pricing per seat type:
-
-  * `price_silver`
-  * `price_gold`
-  * `price_premium`
-* Supports multiple formats (e.g., FORMAT_2D)
+* Create shows using Movie + Screen + Timing
+* Auto-generate ShowSeats during show creation
+* Non-overlapping show validation
+* Seat-type based pricing
 
 ---
 
 ## 🔒 Concurrency-Safe Seat Locking
 
-* Atomic seat locking using **single DB query**
+* Atomic locking using a **single bulk DB query**
 * Prevents race conditions
-* Supports:
+* Supports multi-seat selection
+* Lock expiry: **5 minutes**
 
-  * Multi-seat selection
-  * All-or-nothing locking
-* Lock expiry:
-
-  * Auto-release after **5 minutes**
+```sql
+UPDATE show_seat
+SET status = 'LOCKED'
+WHERE ...
+```
 
 ---
 
 ## 💳 Booking & Payment Flow
 
-### Booking Lifecycle:
+### Lifecycle:
 
-PENDING → CONFIRMED / CANCELLED
+```
+AVAILABLE → LOCKED → BOOKED
+           ↓
+        EXPIRED → AVAILABLE
+```
 
 ### Flow:
 
 1. User selects seats
-2. Seats are locked
+2. Seats locked (5 min expiry)
 3. Booking created (PENDING)
 4. Payment initiated
-5. Payment result processed
+5. Transaction processed
+6. SUCCESS → CONFIRMED → Seats BOOKED
+7. FAILURE → CANCELLED → Seats RELEASED
 
-### Payment Simulation:
+---
 
-* Fake payment gateway
-* Background polling every **10 seconds**
-* Updates:
+## 🔄 Scheduler System
 
-  * Booking status
-  * Seat status
+* Seat lock expiry cleanup
+* Transaction status polling (every 10 sec)
+
+> ⚠️ Note: Will be replaced with event-driven architecture (Kafka)
+
+---
+
+## 📧 Email Integration
+
+* Booking confirmation emails
+* Ticket delivery via email
 
 ---
 
@@ -135,66 +131,120 @@ PENDING → CONFIRMED / CANCELLED
 * Spring Data JPA (Hibernate)
 * PostgreSQL
 * Lombok
-* JUnit / Mockito
+* JavaMailSender
+* Spring Scheduler
 
 ---
 
-## 🧠 Key Design Decisions
+## 🧠 Design Decisions
 
-* UUID-based scalable architecture
-* Clear separation of responsibilities:
-
-  * ShowService
-  * ShowSeatService
-  * BookingService
+* UUID-based scalable IDs
 * Bulk DB operations for performance
-* Optimized queries for seat locking
-* Normalization for unique fields
-* Clean entity relationships:
-
-  * OneToMany / ManyToOne
+* Optimized seat locking query
+* Clean entity relationships
+* Service-layer abstraction
+* State-based booking system
 
 ---
 
-## 🚀 High-Level System Flow
+## 📡 API Modules
 
-User selects movie & show
-↓
-Fetch seats (ShowSeat)
-↓
-Seat locking (atomic, 5-min expiry)
-↓
-Booking created (PENDING)
-↓
-Payment initiated
-↓
-Transaction polling (10 sec interval)
-↓
-SUCCESS        FAILED
-↓              ↓
-CONFIRMED      CANCELLED
-↓              ↓
-Seats BOOKED   Seats RELEASED
+* Movie API
+* Theater API
+* Screen API
+* Show API
+* Booking API
+* Transaction API
+* User API
+
+---
+
+## 🚀 System Flow (High-Level)
+
+```
+User → Select Show → Fetch Seats
+      ↓
+Seat Locking (Atomic)
+      ↓
+Booking (PENDING)
+      ↓
+Payment
+      ↓
+SUCCESS → BOOKED + Email
+FAILURE → RELEASE SEATS
+```
+
+---
+
+## 📈 Current Limitations
+
+* DB-based locking (not horizontally scalable)
+* Scheduler-based polling (not real-time)
+* Monolithic architecture
 
 ---
 
 ## 🔮 Future Enhancements
 
-* Redis for distributed seat locking & caching
-* WebSocket for real-time seat updates
-* Dynamic pricing (weekends, demand-based)
-* Integration with real payment gateways
-* Rate limiting & security improvements
-* Microservices architecture
+### 🚀 Scalability Upgrades
+
+* Redis-based seat locking (SETNX + TTL)
+* Kafka for async event processing
+* Read caching (movies, shows, seats)
 
 ---
 
-## 📌 Conclusion
+### 🔐 Security
 
-This project demonstrates:
+* Spring Security + JWT
+* Role-based authorization
+* API protection
 
-* Real-world system design thinking
-* Concurrency handling in high-traffic systems
-* Scalable backend architecture
+---
 
-Built as a **learning-focused production-grade system design project** 🚀
+### ⚡ Advanced Features
+
+* WebSocket for real-time seat updates
+* Dynamic pricing
+* Rate limiting
+* Idempotency handling
+
+---
+
+## 🏗 Architecture Vision
+
+### Current:
+
+```
+Monolithic Spring Boot + PostgreSQL
+```
+
+### Target:
+
+```
+API Gateway
+   ↓
+Microservices (Booking, Payment, Notification)
+   ↓
+Kafka + Redis
+   ↓
+Database per service
+```
+
+---
+
+## 🧪 Learning Outcomes
+
+* Designed a real-world booking system
+* Handled concurrency using DB-level locking
+* Implemented transactional workflows
+* Built scalable-ready architecture
+
+---
+
+## ⭐ Final Note
+
+This project goes beyond CRUD —
+it focuses on **real-world backend challenges like concurrency, consistency, and scalability**.
+
+---
