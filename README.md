@@ -8,7 +8,7 @@ This project focuses on solving **real-world backend challenges**, especially:
 
 * High concurrency seat booking
 * Transaction consistency
-* Scalable system design
+* Event-driven architecture (Kafka)
 * Clean architecture
 
 ---
@@ -20,6 +20,7 @@ This project focuses on solving **real-world backend challenges**, especially:
 * 🧠 **State-driven booking lifecycle (AVAILABLE → LOCKED → BOOKED)**
 * ⏱ **Auto seat unlock with expiry handling**
 * 💳 **End-to-end booking + payment simulation**
+* 📨 **Kafka-based async booking confirmation**
 * 🏗 **Clean layered architecture (Controller → Service → Repository)**
 
 ---
@@ -28,7 +29,6 @@ This project focuses on solving **real-world backend challenges**, especially:
 
 ### 👤 User Management
 
-* Role-based system (**USER / OWNER / ADMIN**)
 * UUID-based entity IDs
 * Audit fields (`createdAt`, `updatedAt`)
 * User registration & management APIs
@@ -45,7 +45,7 @@ This project focuses on solving **real-world backend challenges**, especially:
 
 ### 🏢 Theater & Screen System
 
-* Theater onboarding with GST, PAN, license
+* Theater onboarding
 * Multiple screens per theater
 * Flexible seat layouts (row-based structure)
 
@@ -74,15 +74,24 @@ Each show acts as an independent **seat universe**
 ## 🔒 Concurrency-Safe Seat Locking
 
 * Atomic locking using a **single bulk DB query**
-* Prevents race conditions
+* Prevents race conditions and double booking
 * Supports multi-seat selection
 * Lock expiry: **5 minutes**
 
 ```sql
 UPDATE show_seat
-SET status = 'LOCKED'
-WHERE ...
+SET status = 'LOCKED', locked_by = ?, lock_expiry = ?
+WHERE id IN (?) AND status = 'AVAILABLE'
 ```
+
+---
+
+## 📨 Kafka Event-Driven Architecture
+
+* **TransactionEventProducer** → publishes event after payment completion
+* **TransactionEventConsumer** → consumes async and triggers booking confirmation
+* **Idempotency checks** to handle duplicate Kafka events safely
+* Decouples payment processing from booking workflow
 
 ---
 
@@ -101,19 +110,19 @@ AVAILABLE → LOCKED → BOOKED
 1. User selects seats
 2. Seats locked (5 min expiry)
 3. Booking created (PENDING)
-4. Payment initiated
-5. Transaction processed
-6. SUCCESS → CONFIRMED → Seats BOOKED
-7. FAILURE → CANCELLED → Seats RELEASED
+4. Transaction created (PENDING)
+5. Payment initiated (fake gateway)
+6. Kafka event published
+7. Consumer processes event
+8. SUCCESS → CONFIRMED → Seats BOOKED + Email
+9. FAILURE → CANCELLED → Seats RELEASED
 
 ---
 
 ## 🔄 Scheduler System
 
 * Seat lock expiry cleanup
-* Transaction status polling (every 10 sec)
-
-> ⚠️ Note: Will be replaced with event-driven architecture (Kafka)
+* **Fallback mechanism** for Kafka failures (processes pending confirmed transactions)
 
 ---
 
@@ -130,6 +139,7 @@ AVAILABLE → LOCKED → BOOKED
 * Spring Boot
 * Spring Data JPA (Hibernate)
 * PostgreSQL
+* Apache Kafka
 * Lombok
 * JavaMailSender
 * Spring Scheduler
@@ -144,6 +154,7 @@ AVAILABLE → LOCKED → BOOKED
 * Clean entity relationships
 * Service-layer abstraction
 * State-based booking system
+* Event-driven decoupling with Kafka
 
 ---
 
@@ -156,6 +167,7 @@ AVAILABLE → LOCKED → BOOKED
 * Booking API
 * Transaction API
 * User API
+* Location API
 
 ---
 
@@ -164,14 +176,16 @@ AVAILABLE → LOCKED → BOOKED
 ```
 User → Select Show → Fetch Seats
       ↓
-Seat Locking (Atomic)
+Seat Locking (Atomic + 5 min expiry)
       ↓
-Booking (PENDING)
+Create Booking (PENDING) + Transaction (PENDING)
       ↓
-Payment
+Fake Payment Gateway
       ↓
-SUCCESS → BOOKED + Email
-FAILURE → RELEASE SEATS
+Kafka Event Published
+      ↓
+Consumer → SUCCESS → BOOKED + Email
+Consumer → FAILURE → RELEASE SEATS
 ```
 
 ---
@@ -179,7 +193,6 @@ FAILURE → RELEASE SEATS
 ## 📈 Current Limitations
 
 * DB-based locking (not horizontally scalable)
-* Scheduler-based polling (not real-time)
 * Monolithic architecture
 
 ---
@@ -189,16 +202,8 @@ FAILURE → RELEASE SEATS
 ### 🚀 Scalability Upgrades
 
 * Redis-based seat locking (SETNX + TTL)
-* Kafka for async event processing
 * Read caching (movies, shows, seats)
-
----
-
-### 🔐 Security
-
-* Spring Security + JWT
-* Role-based authorization
-* API protection
+* Docker containerization
 
 ---
 
@@ -206,8 +211,6 @@ FAILURE → RELEASE SEATS
 
 * WebSocket for real-time seat updates
 * Dynamic pricing
-* Rate limiting
-* Idempotency handling
 
 ---
 
@@ -216,7 +219,7 @@ FAILURE → RELEASE SEATS
 ### Current:
 
 ```
-Monolithic Spring Boot + PostgreSQL
+Monolithic Spring Boot + PostgreSQL + Kafka
 ```
 
 ### Target:
@@ -238,13 +241,14 @@ Database per service
 * Designed a real-world booking system
 * Handled concurrency using DB-level locking
 * Implemented transactional workflows
-* Built scalable-ready architecture
+* Built event-driven architecture with Kafka
+* Implemented idempotency for reliable event processing
 
 ---
 
 ## ⭐ Final Note
 
 This project goes beyond CRUD —
-it focuses on **real-world backend challenges like concurrency, consistency, and scalability**.
+it focuses on **real-world backend challenges like concurrency, consistency, event-driven architecture, and scalability**.
 
 ---
