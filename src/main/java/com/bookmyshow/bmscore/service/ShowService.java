@@ -24,26 +24,23 @@ import java.util.UUID;
 @Service
 public class ShowService {
     @Autowired
-    private ScreenRepository screenRepo;
+    private ScreenService screenService;
     @Autowired
     private ShowRepository showRepo;
     @Autowired
-    private ShowSeatRepository showSeatRepo;
+    private ShowSeatService showSeatService;
     @Autowired
-    private MovieRepository movieRepo;
+    private MovieService movieService;
     @Autowired
-    private TheaterRepository theaterRepo;
+    private TheaterService theaterService;
     @Autowired
     private CommonUtilities utilities;
 
     @Transactional
     public UUID createShow(CreateShowRequestDTO dto){
-        Theater theater = theaterRepo.findById(dto.getTheaterId())
-                .orElseThrow(()->new TheaterNotExistsException("Theater not found"));
-        Movie movie = movieRepo.findById(dto.getMovieId())
-                .orElseThrow(()->new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found."));
-        Screen screen = screenRepo.findById(dto.getScreenId())
-                .orElseThrow(()->new ScreenNotFoundException("Screen with id: "+dto.getScreenId()+" not found."));
+        Theater theater = theaterService.findById(dto.getTheaterId());
+        Movie movie = movieService.findById(dto.getMovieId());
+        Screen screen = screenService.findById(dto.getScreenId());
         List<Show> overlappingShows = showRepo.findOverlappingShows(dto.getScreenId(), dto.getStartTime().minusMinutes(15), dto.getEndTime().plusMinutes(15));
 
         if(!overlappingShows.isEmpty()){
@@ -91,18 +88,26 @@ public class ShowService {
             }
         }
         log.info(showSeats.size()+" ");
-        showSeatRepo.saveAll(showSeats);
+        showSeatService.saveAll(showSeats);
         return show.getId();
     }
 
     public List<Show> findShow(FindShowDTO dto){
-        if(movieRepo.findById(dto.getMovieId()).isEmpty()){
+        if(!movieService.existsById(dto.getMovieId())){
             throw new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found.");
         }
         return showRepo.findByMovieIdAndStartTimeAfter(dto.getMovieId() , dto.getDate());
     }
 
-    @Scheduled(fixedRate = 1000*60*5)
+    public Show findById(UUID id){
+        return showRepo.findById(id)
+                .orElseThrow(()->new InvalidShowIdException("Show with id: "+id+" not found."));
+    }
+    public boolean existsById(UUID id){
+        return showRepo.existsById(id);
+    }
+
+//    @Scheduled(fixedRate = 1000*60*5)
     public void updateShowStatus(){
         int modified = showRepo.updateShowStatus(LocalDateTime.now());
         log.info("{} shows updated", modified);

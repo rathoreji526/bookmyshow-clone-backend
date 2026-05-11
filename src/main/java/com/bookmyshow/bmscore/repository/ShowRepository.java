@@ -34,7 +34,9 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
              when :now > s.endTime then 'CLOSED'
              else 'UPCOMING'
            end
-    where s.showStatus != 'ONGOING' and s.showStatus != 'CLOSED'
+    where (s.showStatus = 'UPCOMING' and :now >= s.startTime)
+           or (s.showStatus = 'ONGOING' and :now > s.endTime)
 """)
     public int updateShowStatus(@Param("now") LocalDateTime now);
+    public boolean existsById(UUID id);
 }

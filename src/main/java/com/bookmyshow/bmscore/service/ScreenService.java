@@ -1,6 +1,7 @@
 package com.bookmyshow.bmscore.service;
 
 import com.bookmyshow.bmscore.customExceptions.ScreenNameAlreadyExistsException;
+import com.bookmyshow.bmscore.customExceptions.ScreenNotFoundException;
 import com.bookmyshow.bmscore.customExceptions.SeatAlreadyExistsException;
 import com.bookmyshow.bmscore.customExceptions.TheaterNotExistsException;
 import com.bookmyshow.bmscore.models.Row;
@@ -27,26 +28,19 @@ public class ScreenService {
     @Autowired
     private ScreenRepository screenRepo;
     @Autowired
-    private SeatRepository seatRepo;
-    @Autowired
-    private RowRepository rowRepo;
-    @Autowired
     CommonUtilities utilities;
     @Autowired
-    private TheaterRepository theaterRepo;
+    private TheaterService theaterService;
 
     @Transactional
     public void createScreen(CreateScreenDTO dto) {
 
-        /// if screen is already exists
-
+        /// if screen already exists
         if(screenRepo.findByNameAndTheaterId(utilities.normalizeString(dto.getScreenName()), dto.getTheaterId()).isPresent()) {
             throw new ScreenNameAlreadyExistsException("Screen name already exists!");
         }
 
-        ///
-        Theater theater = theaterRepo.findById(dto.getTheaterId())
-                .orElseThrow(()->new TheaterNotExistsException("Theater does not exists."));
+        Theater theater = theaterService.findById(dto.getTheaterId());
 
         Map<String , Row> rowMap = new TreeMap<>();
         Set<String>  seatSet = new HashSet<>();
@@ -92,5 +86,9 @@ public class ScreenService {
         }
         screen.setTheater(theater);
         screenRepo.save(screen);
+    }
+    public Screen findById(UUID id) {
+        return screenRepo.findById(id)
+                .orElseThrow(()->new ScreenNotFoundException("Screen with id: "+id+" not found."));
     }
 }

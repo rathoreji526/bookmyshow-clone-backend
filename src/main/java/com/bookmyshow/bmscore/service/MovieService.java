@@ -2,6 +2,7 @@ package com.bookmyshow.bmscore.service;
 
 import com.bookmyshow.bmscore.customExceptions.InvalidInputException;
 import com.bookmyshow.bmscore.customExceptions.MovieAlreadyExistsException;
+import com.bookmyshow.bmscore.customExceptions.MovieNotFoundException;
 import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.repository.MovieRepository;
 import com.bookmyshow.bmscore.requestDTO.AddMovieDTO;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MovieService {
@@ -51,6 +53,14 @@ public class MovieService {
 
     public List<MovieIdName> findAllMovieIdAndName(){
         return movieRepo.findAllIdAndName();
+    }
+
+    public Movie findById(UUID id){
+        return movieRepo.findById(id)
+                .orElseThrow(()->new MovieNotFoundException("Movie with id: "+id+" not found."));
+    }
+    public boolean existsById(UUID id){
+        return movieRepo.existsById(id);
     }
 }
 

@@ -2,6 +2,7 @@ package com.bookmyshow.bmscore.service;
 
 import com.bookmyshow.bmscore.customExceptions.OwnerNotRegisteredException;
 import com.bookmyshow.bmscore.customExceptions.TheaterAlreadyExistsException;
+import com.bookmyshow.bmscore.customExceptions.TheaterNotExistsException;
 import com.bookmyshow.bmscore.enums.Role;
 import com.bookmyshow.bmscore.models.Location;
 import com.bookmyshow.bmscore.models.Theater;
@@ -18,23 +19,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
 public class TheaterService {
     @Autowired
-    TheaterRepository theaterRepo;
+    private TheaterRepository theaterRepo;
     @Autowired
-    UserRepository userRepo;
+    private UserService userService;
     @Autowired
-    CommonUtilities utilities;
+    private CommonUtilities utilities;
     @Autowired
-    LocationRepository locationRepo;
+    private LocationService locationService;
 
     @Transactional
     public void registerTheater(RegisterTheaterRequestDTO dto) {
         LocationRequestDTO locationDto = dto.getLocation();
-        Optional<Location> loc = locationRepo.findByZipcodeAndAreaAndStreet(utilities.normalizeString(locationDto.getZipcode()), utilities.normalizeString(locationDto.getArea()), utilities.normalizeString(locationDto.getStreet()));
+        Optional<Location> loc = locationService.findByZipcodeAreaAndStreet(utilities.normalizeString(locationDto.getZipcode()), utilities.normalizeString(locationDto.getArea()), utilities.normalizeString(locationDto.getStreet()));
         Location location = new Location();
         if (loc.isPresent()) {
             Optional<Theater> theater = theaterRepo.findByNameAndLocation_Id(utilities.normalizeString(dto.getTheaterName()) , loc.get().getId());
@@ -48,15 +50,14 @@ public class TheaterService {
             location.setStreet(utilities.normalizeString(locationDto.getStreet()));
             location.setState(utilities.normalizeString(locationDto.getState()));
             location.setZipcode(utilities.normalizeString(locationDto.getZipcode()));
-            location = locationRepo.save(location);
+            location = locationService.save(location);
         }
 
-        User user = userRepo.findById(dto.getOwnerId())
-                .orElseThrow(()->new OwnerNotRegisteredException("Owner is not registered!"));
+        User user = userService.findById(dto.getOwnerId());
 
         if(user.getRole() != Role.OWNER){
             user.setRole(Role.OWNER);
-            userRepo.save(user);
+            userService.saveUser(user);
         }
 
         Theater theater = new Theater();
@@ -72,5 +73,9 @@ public class TheaterService {
             throw  new TheaterAlreadyExistsException("Theater already exists.");
         }
         theaterRepo.save(theater);
+    }
+    public Theater findById(UUID id){
+        return theaterRepo.findById(id)
+                .orElseThrow(()->new TheaterNotExistsException("Theater with id: "+id+" does not exist"));
     }
 }

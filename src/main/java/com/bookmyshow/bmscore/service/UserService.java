@@ -1,6 +1,7 @@
 package com.bookmyshow.bmscore.service;
 
 import com.bookmyshow.bmscore.customExceptions.ConfirmPasswordMismatchException;
+import com.bookmyshow.bmscore.customExceptions.InvalidUserException;
 import com.bookmyshow.bmscore.customExceptions.UserAlreadyExistsException;
 import com.bookmyshow.bmscore.enums.Role;
 import com.bookmyshow.bmscore.models.User;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -39,5 +41,16 @@ public class UserService {
         user.setSysId(utilities.generateUserSysId());
 
         userRepo.save(user);
+    }
+    public User findById(UUID id){
+        User user = userRepo.findById(id)
+                .orElseThrow(()-> new InvalidUserException("User with id: "+id+" not found."));
+        return user;
+    }
+    public void saveUser(User user){
+        userRepo.save(user);
+    }
+    public boolean existsById(UUID id){
+        return userRepo.existsById(id);
     }
 }

@@ -19,6 +19,6 @@ public class Transaction extends GlobalFields{
     private Double amount;
     private LocalDateTime expiry;
     @Enumerated(EnumType.STRING)
-    private TransactionStatus status;
+    private TransactionStatus status = TransactionStatus.PENDING;
     private boolean processed = false;
 }

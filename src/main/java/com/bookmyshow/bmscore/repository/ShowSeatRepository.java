@@ -38,4 +38,5 @@ public interface ShowSeatRepository extends JpaRepository<ShowSeat, UUID> {
     public int releaseLockedSeat(LocalDateTime now);
     public List<ShowSeat> findByIdIn(List<UUID> showSeatIds);
     public List<ShowSeat> findByShowId(UUID showId);
+    public boolean existsByShowId(UUID showId);
 }

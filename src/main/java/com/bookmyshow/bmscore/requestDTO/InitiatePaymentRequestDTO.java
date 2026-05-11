@@ -9,4 +9,5 @@ import java.util.UUID;
 public class InitiatePaymentRequestDTO {
     private UUID userId;
     private List<UUID> showSeatIds;
+    private UUID showId;
 }

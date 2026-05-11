@@ -18,15 +18,15 @@ public class ShowSeatController {
     @Autowired
     private ShowSeatService showSeatService;
 
-    @PostMapping("/lock-seat")
-    public ResponseEntity<String> lockSeat(@RequestBody SeatLockingRequestDTO dto){
-        try{
-            showSeatService.lockSeat(dto);
-            return new ResponseEntity<>("Seats locked successfully." ,  HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
+//    @PostMapping("/lock-seat")
+//    public ResponseEntity<String> lockSeat(@RequestBody SeatLockingRequestDTO dto){
+//        try{
+//            showSeatService.lockSeat(dto);
+//            return new ResponseEntity<>("Seats locked successfully." ,  HttpStatus.OK);
+//        }catch (Exception e){
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
     @GetMapping("/getAllShowSeats")
     public ResponseEntity<List<ShowSeat>> getAllShowSeats(@RequestParam UUID showId){

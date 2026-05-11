@@ -11,5 +11,4 @@ public class BmsCoreApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BmsCoreApplication.class, args);
 	}
-
 }

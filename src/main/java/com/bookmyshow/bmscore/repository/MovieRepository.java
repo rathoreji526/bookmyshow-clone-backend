@@ -18,4 +18,5 @@ public interface MovieRepository extends JpaRepository<Movie, UUID> {
     public List<MovieIdName> findAllIdAndName();
 
     public List<Movie> findByReleaseDateBetween(LocalDateTime start , LocalDateTime end);
+    public boolean existsById(UUID id);
 }

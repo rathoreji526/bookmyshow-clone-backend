@@ -4,9 +4,11 @@ import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.enums.BookingStatus;
 import com.bookmyshow.bmscore.enums.SeatStatus;
 import com.bookmyshow.bmscore.enums.TransactionStatus;
+import com.bookmyshow.bmscore.kafka.producer.BookingConfirmedEventProducer;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
+import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +27,26 @@ public class BookingService {
     @Autowired
     private BookingRepository bookingRepo;
     @Autowired
-    private ShowSeatRepository showSeatRepo;
+    private TransactionService transactionService;
     @Autowired
-    private TransactionRepository transactionRepo;
+    private UserService userService;
     @Autowired
-    private UserRepository userRepo;
+    private ShowService  showService;
     @Autowired
-    private EmailService emailService;
+    private TheaterService theaterService;
     @Autowired
-    private ShowRepository showRepo;
+    private ShowSeatService showSeatService;
     @Autowired
-    private TheaterRepository theaterRepo;
+    private BookingConfirmedEventProducer bookingConfirmedEventProducer;
 
     @Transactional
     public UUID initiatePayment(InitiatePaymentRequestDTO dto) {
-        User user = userRepo.findById(dto.getUserId())
-                .orElseThrow(() -> new InvalidUserException("User not found"));
+        //lock seat first
+        showSeatService.lockSeat(dto.getShowSeatIds() , dto.getUserId() , dto.getShowId());
+
+        User user = userService.findById(dto.getUserId());
         Set<UUID> showSeatIDs = new HashSet<>(dto.getShowSeatIds());
-        List<ShowSeat> showSeatList = showSeatRepo.findByIdIn(dto.getShowSeatIds());
+        List<ShowSeat> showSeatList = showSeatService.findByIdIn(dto.getShowSeatIds());
 
         Double bookingValue = 0.0;
         if (showSeatIDs.size() != showSeatList.size()) {
@@ -61,24 +65,16 @@ public class BookingService {
             }
             bookingValue += ss.getPrice();
         }
-        Show show = showRepo.findById(showSeatList.get(0).getShow().getId())
-                .orElseThrow(() -> new InvalidShowIdException("Show not found"));
-
-
-        Transaction transaction = new Transaction();
-        transaction.setUserId(dto.getUserId());
-        transaction.setAmount(bookingValue);
-        transaction.setExpiry(LocalDateTime.now().plusMinutes(5));
-        transaction.setStatus(TransactionStatus.PENDING);
+        Show show = showService.findById(showSeatList.get(0).getShow().getId());
+        Transaction transaction = transactionService.createAndSave(user.getId() , bookingValue);
 
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setBookedSeats(showSeatList);
         booking.setTotalPrice(bookingValue);
-        booking.setBookingExpiry(LocalDateTime.now().plusMinutes(10));
+        booking.setBookingExpiry(LocalDateTime.now().plusMinutes(5));
         booking.setShow(show);
 
-        transactionRepo.save(transaction);
         booking.setTransaction(transaction);
         bookingRepo.save(booking);
 
@@ -87,21 +83,13 @@ public class BookingService {
 
     @Transactional
     public void handleConfirmedTransaction(UUID txnId) {
-        Booking booking = bookingRepo.findByTransactionId(txnId)
-                .orElseThrow(()-> new BookingNotFoundException("Booking not found for transaction id: " + txnId));
-
-        User user = booking.getUser();
-        log.info("Show id: " + booking.getShow().getId());
-        Show show = booking.getShow();
-        log.info("Theater id: "+show.getScreen().getTheater().getId());
-        Theater theater = theaterRepo.findById(show.getScreen().getTheater().getId())
-                .orElseThrow(()-> new InvalidTheaterIdException("Unable to find theater"));
+        Booking booking = findByTransactionId(txnId);
+        log.info("booking fetched from DB, bookingId: "+booking.getId());
 
         if(!booking.getBookingStatus().equals(BookingStatus.PENDING)){
             return;
         }
         List<ShowSeat> ssList =  booking.getBookedSeats();
-        StringBuilder bookedTickets = new StringBuilder();
         for(ShowSeat ss : ssList) {
             if(!ss.getSeatStatus().equals(SeatStatus.LOCKED)) {
                 throw new SeatNotLockedException("Seat is not in locked state.");
@@ -109,33 +97,23 @@ public class BookingService {
             ss.setSeatStatus(SeatStatus.BOOKED);
             ss.setLockedBy(null);
             ss.setLockExpiry(null);
-            bookedTickets.append(ss.getSeat().getSeatNumber()).append(" ");
         }
-        showSeatRepo.saveAll(ssList);
+        showSeatService.saveAll(ssList);
         booking.setBookingStatus(BookingStatus.CONFIRMED);
         booking.setBookingExpiry(null);
         bookingRepo.save(booking);
-        emailService.sendEmail(user.getEmail() , "Booking confirmed.", "Hi "+user.getName()+",\n"
-                +"Your ticket has been successfully booked. \uD83C\uDF89\n"
-                +"Here are your booking details:\n"
-                +"Booking id: "+booking.getId()+"\n"
-                +"Movie name: "+show.getMovie().getName()+"\n"
-                +"Theater: "+theater.getName()+"\n"
-                +"Show timing: "+show.getStartTime() +"-"+show.getEndTime()+"\n"
-                +"Seats: "+bookedTickets.toString()+"\n"
-                +"Please keep this Ticket ID safe. You will need it for verification at the entry.\n"
-                +"We’ll soon send you a QR code for faster check-in.\n"
-                +"Enjoy your show! \uD83C\uDF7F\n" +
-                "\n" +
-                "Regards,  \n" +
-                "BookMyShow Team");
-        log.info("Booking confirmed and tickets sent successfully.");
+
+        bookingConfirmedEventProducer.sendBookingTicketOnEmail(booking.getId());
+
+        log.info("\nBooking confirmed and tickets sent successfully.\n");
     }
+    /*
+    name of user, bookingId , movieName , theaterName , showStartTime , showEndTime , bookedSeats ,
+    */
 
     @Transactional
     public void handleCancelledTransaction(UUID transactionId) {
-        Booking booking = bookingRepo.findByTransactionId(transactionId)
-                .orElseThrow(()-> new BookingNotFoundException("Booking not found for transaction id: " + transactionId));
+        Booking booking = findByTransactionId(transactionId);
         if(!booking.getBookingStatus().equals(BookingStatus.PENDING)){
             return;
         }
@@ -148,28 +126,31 @@ public class BookingService {
             ss.setLockExpiry(null);
             ss.setLockedBy(null);
         }
-        showSeatRepo.saveAll(ssList);
+        showSeatService.saveAll(ssList);
         booking.setBookingStatus(BookingStatus.CANCELLED);
         booking.setBookingExpiry(null);
         bookingRepo.save(booking);
     }
     public List<Booking> findAllBookings(UUID userId){
-        if(!userRepo.existsById(userId)){
+        if(!userService.existsById(userId)){
             throw new InvalidUserException("User not found");
         }
         return bookingRepo.findByUserId(userId);
     }
+    public Booking findByTransactionId(UUID transactionId){
+        return bookingRepo.findByTransactionId(transactionId)
+                .orElseThrow(()-> new BookingNotFoundException("Booking not found for transaction id: " + transactionId));
+    }
 
         //if transaction is confirmed change the booking status to confirm and send all the seat ids on email
 
-
-
         /*
-        checks before booking ticket
-        purpose:
-        1. if status of showSeat is not locked - reject.
-        2. if showSeat is not locked by the user - reject.
-        3. if locked time+5min is less than current time - reject
+       checks before booking ticket
+       purpose:
+        reject if:-
+        1. status of showSeat is not locked.
+        2. showSeat is not locked by the user.
+        3. locked time+5min is less than current time.
 
         after all checks
         create transaction with status pending

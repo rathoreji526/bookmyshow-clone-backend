@@ -2,6 +2,7 @@ package com.bookmyshow.bmscore.controller;
 
 import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
+import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
 import com.bookmyshow.bmscore.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

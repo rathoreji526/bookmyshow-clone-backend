@@ -5,3 +5,8 @@ scheduling system...
 2. if show's start time is less than current time make it -> ongoing and if end time is less than current time mark as       closed.(runs in every 15 minutes)
      -> COMPLETED
 3.
+
+Kafka integration in project :
+Completed part:
+
+payment done ? call booking service with payment status
