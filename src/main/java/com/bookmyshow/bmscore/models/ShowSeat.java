@@ -18,6 +18,8 @@ import java.util.UUID;
         @UniqueConstraint(columnNames = {"seat_id" , "show_id"})
        })
 public class ShowSeat extends GlobalFields{
+    @ManyToOne
+    private Booking booking;
     private double price;
     @JsonBackReference
     @ManyToOne

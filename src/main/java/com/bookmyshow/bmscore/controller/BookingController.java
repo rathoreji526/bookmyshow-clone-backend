@@ -1,6 +1,7 @@
 package com.bookmyshow.bmscore.controller;
 
 import com.bookmyshow.bmscore.models.Booking;
+import com.bookmyshow.bmscore.models.User;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
 import com.bookmyshow.bmscore.service.BookingService;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,5 +39,16 @@ public class BookingController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+    @GetMapping("/find-user-with-more-than-five-bookings")
+    public ResponseEntity<?> findUsersWithMoreThanFiveBookings(@RequestBody LocalDateTime date){
+        try{
+            List<User> users = bookingService.findUsersWithMoreThanFiveBookings(date);
+            return new ResponseEntity<>(users , HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage() , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+//    @GetMapping("/findBookingsInACity")
+//    public ResponseEntity<int>
 
 }

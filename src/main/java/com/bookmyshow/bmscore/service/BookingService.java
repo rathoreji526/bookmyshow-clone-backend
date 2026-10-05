@@ -76,6 +76,7 @@ public class BookingService {
         booking.setShow(show);
 
         booking.setTransaction(transaction);
+        user.getBookings().add(booking);
         bookingRepo.save(booking);
 
         return transaction.getId();
@@ -101,6 +102,7 @@ public class BookingService {
         showSeatService.saveAll(ssList);
         booking.setBookingStatus(BookingStatus.CONFIRMED);
         booking.setBookingExpiry(null);
+        booking.getUser().getBookings().add(booking);
         bookingRepo.save(booking);
 
         bookingConfirmedEventProducer.sendBookingTicketOnEmail(booking.getId());
@@ -140,6 +142,14 @@ public class BookingService {
     public Booking findByTransactionId(UUID transactionId){
         return bookingRepo.findByTransactionId(transactionId)
                 .orElseThrow(()-> new BookingNotFoundException("Booking not found for transaction id: " + transactionId));
+    }
+    public List<User> findUsersWithMoreThanFiveBookings(LocalDateTime date){
+        return bookingRepo.findUsersWithMoreThanFiveBookings(date.minusHours(date.getHour()));
+    }
+    public int findBookingsInACity(UUID movieId , String city){
+        List<UUID> theatersInACity = theaterService.findByCity(city);
+        int countBookingsInACity = bookingRepo.getBookingsInACity(theatersInACity , movieId);
+        return countBookingsInACity;
     }
 
         //if transaction is confirmed change the booking status to confirm and send all the seat ids on email

@@ -4,16 +4,21 @@ import com.bookmyshow.bmscore.customExceptions.ConfirmPasswordMismatchException;
 import com.bookmyshow.bmscore.customExceptions.InvalidUserException;
 import com.bookmyshow.bmscore.customExceptions.UserAlreadyExistsException;
 import com.bookmyshow.bmscore.enums.Role;
+import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.models.User;
 import com.bookmyshow.bmscore.repository.UserRepository;
 import com.bookmyshow.bmscore.requestDTO.SaveUserRequestDTO;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -39,12 +44,24 @@ public class UserService {
         user.setPassword(utilities.hashPassword(dto.getPassword()));
         user.setRole(Role.USER);
         user.setSysId(utilities.generateUserSysId());
+        user.setBookings(new ArrayList<>());
 
         userRepo.save(user);
+    }
+    public List<Booking> getBookings(String username){
+        log.info("fetching bookings of user: "+username+" from database......");
+        List<Booking> bookings = userRepo.getBookingsWithUsername(username);
+        log.info("fetched from database there are "+ bookings.size()+" bookings.");
+        return bookings;
     }
     public User findById(UUID id){
         User user = userRepo.findById(id)
                 .orElseThrow(()-> new InvalidUserException("User with id: "+id+" not found."));
+        return user;
+    }
+    public User findByUsername(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new InvalidUserException("User with username: "+username+" not found."));
         return user;
     }
     public void saveUser(User user){

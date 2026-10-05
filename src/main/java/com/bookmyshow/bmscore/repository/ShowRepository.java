@@ -1,8 +1,11 @@
 package com.bookmyshow.bmscore.repository;
 
+import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -39,4 +42,5 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
 """)
     public int updateShowStatus(@Param("now") LocalDateTime now);
     public boolean existsById(UUID id);
+    public int findByMovieId(UUID movieId);
 }

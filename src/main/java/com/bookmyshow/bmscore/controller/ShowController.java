@@ -7,6 +7,7 @@ import com.bookmyshow.bmscore.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class ShowController {
     private ShowService showService;
 
     @PostMapping("/create-show")
+    @PreAuthorize("hasAuthority('OWNER')")
     public ResponseEntity<String> createShow(@RequestBody CreateShowRequestDTO dto){
         try{
             UUID showId = showService.createShow(dto);
@@ -37,4 +39,5 @@ public class ShowController {
             return new ResponseEntity<>(e.getMessage() , HttpStatus.BAD_REQUEST);
         }
     }
+
 }

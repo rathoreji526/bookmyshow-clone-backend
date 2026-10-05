@@ -62,6 +62,9 @@ public class MovieService {
     public boolean existsById(UUID id){
         return movieRepo.existsById(id);
     }
+    public List<Movie> findAll(){
+        return movieRepo.findAll();
+    }
 }
 
 
