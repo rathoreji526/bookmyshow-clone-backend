@@ -2,7 +2,7 @@ server:
   port: 2672
 spring:
   config:
-    import: optional:file:.env[.properties]
+    import: file:.env[.properties]
   datasource:
     url: jdbc:postgresql://localhost:5433/${DB_NAME}
     username: ${DB_USER}
