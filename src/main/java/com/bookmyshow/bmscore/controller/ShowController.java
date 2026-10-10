@@ -1,5 +1,6 @@
 package com.bookmyshow.bmscore.controller;
 
+import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 

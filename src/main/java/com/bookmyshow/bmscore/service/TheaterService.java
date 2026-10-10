@@ -82,4 +82,7 @@ public class TheaterService {
     public List<UUID> findByCity(String city){
         return theaterRepo.findByCity(city);
     }
+    public List<Theater> findAllTheaters(){
+        return theaterRepo.findAll();
+    }
 }

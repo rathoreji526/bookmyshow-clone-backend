@@ -14,8 +14,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     public Optional<User> findByUsername(String username);
     public boolean existsBySysId(String sysId);
     public boolean existsById(UUID id);
+    public boolean existsByUsername(String username);
     @Query("""
             select u.bookings from User u where u.username = :username
             """)
     public List<Booking> getBookingsWithUsername(@Param("username") String username);
+    public int countByEmail(String email);
 }

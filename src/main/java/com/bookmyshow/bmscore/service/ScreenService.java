@@ -91,4 +91,7 @@ public class ScreenService {
         return screenRepo.findById(id)
                 .orElseThrow(()->new ScreenNotFoundException("Screen with id: "+id+" not found."));
     }
+    public List<Screen> findByTheaterId(UUID theaterID){
+        return screenRepo.findByTheaterId(theaterID);
+    }
 }

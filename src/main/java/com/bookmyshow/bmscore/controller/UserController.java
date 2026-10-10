@@ -1,7 +1,6 @@
 package com.bookmyshow.bmscore.controller;
 
-import com.bookmyshow.bmscore.customExceptions.ConfirmPasswordMismatchException;
-import com.bookmyshow.bmscore.customExceptions.UserAlreadyExistsException;
+import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.requestDTO.SaveUserRequestDTO;
 import com.bookmyshow.bmscore.service.UserService;
@@ -20,14 +19,22 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/saveUser")
+    @PostMapping("/register-user")
     public ResponseEntity<String> saveUser(@RequestBody SaveUserRequestDTO dto){
         try{
             userService.saveUser(dto);
-            return new ResponseEntity<>("User saved successfully." , HttpStatus.CREATED);
-        }catch(ConfirmPasswordMismatchException |
-               UserAlreadyExistsException e){
-            return new ResponseEntity<>(e.getMessage() , HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User registered successfully." , HttpStatus.CREATED);
+        }catch(ConfirmPasswordMismatchException|
+               PasswordLengthException |
+               InvalidEmailException |
+               UsernameLengthException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        catch(UserAlreadyExistsException |
+              TooMuchAccountsWithSameEmailException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/getBookings")

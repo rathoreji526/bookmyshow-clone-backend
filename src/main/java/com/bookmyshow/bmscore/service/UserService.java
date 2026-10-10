@@ -1,8 +1,6 @@
 package com.bookmyshow.bmscore.service;
 
-import com.bookmyshow.bmscore.customExceptions.ConfirmPasswordMismatchException;
-import com.bookmyshow.bmscore.customExceptions.InvalidUserException;
-import com.bookmyshow.bmscore.customExceptions.UserAlreadyExistsException;
+import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.enums.Role;
 import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.models.User;
@@ -30,6 +28,18 @@ public class UserService {
     public void saveUser(SaveUserRequestDTO dto){
         if(!dto.getPassword().equals(dto.getConfirmPassword())){
             throw new ConfirmPasswordMismatchException("Password mismatch!");
+        }
+        if(dto.getPassword().length() < 6){
+            throw new PasswordLengthException("Password length should be at least 6.");
+        }
+        if(dto.getUsername().length() < 5 || dto.getUsername().length() > 15){
+            throw new UsernameLengthException("Username length should between 5-15.");
+        }
+        if(!dto.getEmail().endsWith("@gmail.com")){
+            throw new InvalidEmailException("Invalid email!");
+        }
+        if(userRepo.countByEmail(dto.getEmail()) > 5){
+            throw new TooMuchAccountsWithSameEmailException("Too much account with this email! Can't create more.");
         }
         Optional<User> dbUser = userRepo.findByUsername(dto.getUsername());
 

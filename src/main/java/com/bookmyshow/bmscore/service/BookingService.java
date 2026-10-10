@@ -3,18 +3,17 @@ package com.bookmyshow.bmscore.service;
 import com.bookmyshow.bmscore.customExceptions.*;
 import com.bookmyshow.bmscore.enums.BookingStatus;
 import com.bookmyshow.bmscore.enums.SeatStatus;
-import com.bookmyshow.bmscore.enums.TransactionStatus;
 import com.bookmyshow.bmscore.kafka.producer.BookingConfirmedEventProducer;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
-import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -133,11 +132,11 @@ public class BookingService {
         booking.setBookingExpiry(null);
         bookingRepo.save(booking);
     }
-    public List<Booking> findAllBookings(UUID userId){
-        if(!userService.existsById(userId)){
+    public List<Booking> findAllBookings(String username){
+        if(!userService.userRepo.existsByUsername(username)){
             throw new InvalidUserException("User not found");
         }
-        return bookingRepo.findByUserId(userId);
+        return bookingRepo.findByUserUsername(username);
     }
     public Booking findByTransactionId(UUID transactionId){
         return bookingRepo.findByTransactionId(transactionId)
@@ -150,6 +149,11 @@ public class BookingService {
         List<UUID> theatersInACity = theaterService.findByCity(city);
         int countBookingsInACity = bookingRepo.getBookingsInACity(theatersInACity , movieId);
         return countBookingsInACity;
+    }
+    public List<Movie> findTop10Shows(){
+        Pageable pageable = PageRequest.of(0,10);
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        return bookingRepo.findTopTenShowsInLast30Days(thirtyDaysAgo, pageable);
     }
 
         //if transaction is confirmed change the booking status to confirm and send all the seat ids on email

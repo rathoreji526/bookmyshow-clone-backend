@@ -8,6 +8,8 @@ import com.bookmyshow.bmscore.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -31,9 +33,9 @@ public class BookingController {
     }
 
     @GetMapping("/find-bookings")
-    public ResponseEntity<List<Booking>> findBookings(@RequestParam UUID userId){
+    public ResponseEntity<List<Booking>> findBookings(@AuthenticationPrincipal UserDetails details){
         try{
-            List<Booking> bokingList = bookingService.findAllBookings(userId);
+            List<Booking> bokingList = bookingService.findAllBookings(details.getUsername());
             return new ResponseEntity<>(bokingList, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -48,7 +50,5 @@ public class BookingController {
             return new ResponseEntity<>(e.getMessage() , HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-//    @GetMapping("/findBookingsInACity")
-//    public ResponseEntity<int>
 
 }

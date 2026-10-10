@@ -115,4 +115,5 @@ public class ShowService {
         int modified = showRepo.updateShowStatus(LocalDateTime.now());
         log.info("{} shows updated", modified);
     }
+
 }

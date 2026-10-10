@@ -10,6 +10,7 @@ import com.bookmyshow.bmscore.requestDTO.DateRangeDTO;
 import com.bookmyshow.bmscore.requestDTO.MovieIdName;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,9 @@ public class MovieService {
     private MovieRepository movieRepo;
     @Autowired
     private CommonUtilities utilities;
+    @Autowired
+    @Lazy
+    private BookingService  bookingService;
 
     public String addMovie(AddMovieDTO dto){
         String movieName = utilities.normalizeString(dto.getName());
@@ -64,6 +68,9 @@ public class MovieService {
     }
     public List<Movie> findAll(){
         return movieRepo.findAll();
+    }
+    public List<Movie> findTopTenMovies(){
+        return bookingService.findTop10Shows();
     }
 }
 
