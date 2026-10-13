@@ -33,6 +33,7 @@ public class JwtConfiguration {
                         auth -> auth
                                 .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                                 .requestMatchers(
+                                        "/actuator/*",
                                         "/app/login",
                                         "/apis/user/register-user",
                                         "/apis/movies/top-ten-movies",

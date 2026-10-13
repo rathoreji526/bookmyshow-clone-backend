@@ -33,3 +33,5 @@ build/
 .vscode/
 planning.txt
 .env
+.env.*
+!.env.example

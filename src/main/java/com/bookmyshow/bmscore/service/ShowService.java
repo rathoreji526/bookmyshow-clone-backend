@@ -115,5 +115,9 @@ public class ShowService {
         int modified = showRepo.updateShowStatus(LocalDateTime.now());
         log.info("{} shows updated", modified);
     }
+    public List<Show> findUpcomingShowsBasedOnCity(String city){
+        List<Show> shows = showRepo.findByCity(city, LocalDateTime.now());
+        return shows;
+    }
 
 }
