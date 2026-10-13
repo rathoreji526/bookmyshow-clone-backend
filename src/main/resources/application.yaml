@@ -10,7 +10,7 @@ spring:
       ddl-auto: update
     show-sql: true
   mail:
-    test-connection: true
+    test-connection: false
     host: smtp.gmail.com
     port: 587
     username: ${GMAIL_USERNAME}
