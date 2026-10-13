@@ -33,7 +33,7 @@ public class JwtConfiguration {
                         auth -> auth
                                 .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                                 .requestMatchers(
-                                        "/actuator/*",
+                                        "/actuator/**",
                                         "/app/login",
                                         "/apis/user/register-user",
                                         "/apis/movies/top-ten-movies",
@@ -56,6 +56,7 @@ public class JwtConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
+                "https://bookmyshow-clone-cdbt.onrender.com",
                 "http://localhost:5500",
                 "http://127.0.0.1:5500",
                 "http://127.0.0.1:3000",

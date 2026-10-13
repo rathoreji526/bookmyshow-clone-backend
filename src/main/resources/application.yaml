@@ -54,3 +54,5 @@ management:
   endpoint:
     health:
       show-details: never
+#      show-components: always
+#change  show-details: always to show-details: never and remove show-components: always in production
