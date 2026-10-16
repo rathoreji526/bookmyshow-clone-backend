@@ -6,6 +6,9 @@ import com.bookmyshow.bmscore.service.TheaterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +20,12 @@ public class TheaterController {
     private TheaterService theaterService;
 
     @PostMapping("/register-theater")
-    public ResponseEntity<String> registerTheater(@RequestBody RegisterTheaterRequestDTO dto){
+    public ResponseEntity<String> registerTheater(
+            @RequestBody RegisterTheaterRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
         try{
-            theaterService.registerTheater(dto);
+            theaterService.registerTheater(dto, userDetails);
             return new ResponseEntity<>("Theater registered successfully", HttpStatus.CREATED);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

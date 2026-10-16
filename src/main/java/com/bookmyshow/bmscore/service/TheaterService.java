@@ -1,21 +1,19 @@
 package com.bookmyshow.bmscore.service;
 
-import com.bookmyshow.bmscore.customExceptions.OwnerNotRegisteredException;
 import com.bookmyshow.bmscore.customExceptions.TheaterAlreadyExistsException;
 import com.bookmyshow.bmscore.customExceptions.TheaterNotExistsException;
 import com.bookmyshow.bmscore.enums.Role;
 import com.bookmyshow.bmscore.models.Location;
 import com.bookmyshow.bmscore.models.Theater;
 import com.bookmyshow.bmscore.models.User;
-import com.bookmyshow.bmscore.repository.LocationRepository;
 import com.bookmyshow.bmscore.repository.TheaterRepository;
-import com.bookmyshow.bmscore.repository.UserRepository;
 import com.bookmyshow.bmscore.requestDTO.LocationRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.RegisterTheaterRequestDTO;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +33,7 @@ public class TheaterService {
     private LocationService locationService;
 
     @Transactional
-    public void registerTheater(RegisterTheaterRequestDTO dto) {
+    public void registerTheater(RegisterTheaterRequestDTO dto, UserDetails  userDetails) {
         LocationRequestDTO locationDto = dto.getLocation();
         Optional<Location> loc = locationService.findByZipcodeAreaAndStreet(utilities.normalizeString(locationDto.getZipcode()), utilities.normalizeString(locationDto.getArea()), utilities.normalizeString(locationDto.getStreet()));
         Location location = new Location();
@@ -54,7 +52,7 @@ public class TheaterService {
             location = locationService.save(location);
         }
 
-        User user = userService.findById(dto.getOwnerId());
+        User user = userService.findByUsername(userDetails.getUsername());
 
         if(user.getRole() != Role.OWNER){
             user.setRole(Role.OWNER);
