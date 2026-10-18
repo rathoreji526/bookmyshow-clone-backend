@@ -36,4 +36,3 @@ public class Show extends GlobalFields{
 
     private boolean isActive = true;
 }
-//find movie that have more then 10 shows

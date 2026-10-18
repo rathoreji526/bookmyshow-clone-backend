@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,6 +72,9 @@ public class MovieService {
     }
     public List<Movie> findTopTenMovies(){
         return bookingService.findTop10Shows();
+    }
+    public List<Movie> findUpcomingMovies(){
+        return movieRepo.findUpcomingMovies(LocalDateTime.now());
     }
 }
 

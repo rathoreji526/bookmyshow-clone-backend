@@ -110,7 +110,7 @@ public class ShowService {
         return showRepo.existsById(id);
     }
 
-//    @Scheduled(fixedRate = 1000*60*5)
+    @Scheduled(fixedRate = 1000*60*5)
     public void updateShowStatus(){
         int modified = showRepo.updateShowStatus(LocalDateTime.now());
         log.info("{} shows updated", modified);

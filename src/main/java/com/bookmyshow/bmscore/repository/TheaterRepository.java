@@ -16,4 +16,6 @@ public interface TheaterRepository extends JpaRepository<Theater, UUID> {
             where t.location.city = :city
             """)
     public List<UUID> findByCity(String city);
+    public List<Theater> findByLocationCity(String city);
+    public List<Theater> findByOwnerUsername(String username);
 }

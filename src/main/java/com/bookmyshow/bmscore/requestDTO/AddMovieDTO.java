@@ -12,4 +12,5 @@ public class AddMovieDTO {
     private Language language;
     private LocalDateTime releaseDate;
     private Double rating;
+    private String posterUrl;
 }

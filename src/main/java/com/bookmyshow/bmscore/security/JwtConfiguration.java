@@ -37,11 +37,15 @@ public class JwtConfiguration {
                                         "/app/login",
                                         "/apis/user/register-user",
                                         "/apis/movies/top-ten-movies",
+                                        "/apis/movies/upcoming-movies",
                                         "/apis/movies/getAllMovies",
                                         "/apis/seat/getAllShowSeats",
                                         "/apis/booking/initiate-payment",
                                         "/apis/transaction/make-payment",
-                                        "/apis/show/find-show")
+                                        "/apis/show/find-show",
+                                        "/apis/theater/register-theater",
+                                        "/apis/theater/getAllTheaterByCity/**"
+                                        )
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

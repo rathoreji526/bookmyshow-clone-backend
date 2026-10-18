@@ -46,10 +46,20 @@ public class MovieController {
         return movieService.findAllMovieIdAndName();
     }
     @GetMapping("/top-ten-movies")
-    public ResponseEntity<List<Movie>> findTopTenShowsInLast30Days(LocalDateTime thirtyDaysAgo){
+    public ResponseEntity<List<Movie>> findTopTenShowsInLast30Days(){
         try{
             List<Movie> movies =  movieService.findTopTenMovies();
             return new ResponseEntity<>(movies, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    //upcoming movies
+    @GetMapping("/upcoming-movies")
+    public ResponseEntity<?> findUpcomingMovies(){
+        try{
+            List<Movie> movies =  movieService.findUpcomingMovies();
+            return new ResponseEntity<>(movies , HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

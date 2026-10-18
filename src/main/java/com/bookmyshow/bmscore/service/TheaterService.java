@@ -80,6 +80,13 @@ public class TheaterService {
     public List<UUID> findByCity(String city){
         return theaterRepo.findByCity(city);
     }
+
+    public List<Theater> findTheatersByCity(String city){
+        return theaterRepo.findByLocationCity(city);
+    }
+    public List<Theater> findByOwnerId(String username){
+        return theaterRepo.findByOwnerUsername(username);
+    }
     public List<Theater> findAllTheaters(){
         return theaterRepo.findAll();
     }
