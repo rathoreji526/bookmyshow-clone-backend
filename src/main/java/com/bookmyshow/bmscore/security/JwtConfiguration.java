@@ -44,7 +44,8 @@ public class JwtConfiguration {
                                         "/apis/transaction/make-payment",
                                         "/apis/show/find-show",
                                         "/apis/theater/register-theater",
-                                        "/apis/theater/getAllTheaterByCity/**"
+                                        "/apis/theater/getAllTheaterByCity/**",
+                                        "/health"
                                         )
                                 .permitAll()
                                 .anyRequest()
