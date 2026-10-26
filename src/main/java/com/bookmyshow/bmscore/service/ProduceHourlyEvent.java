@@ -12,7 +12,7 @@ public class ProduceHourlyEvent {
     @Autowired
     private HourlyEventProducer hourlyEventProducer;
 
-    @Scheduled(fixedRate = 1000*60*60)
+    @Scheduled(fixedRate = 1000*60*60) //1hr
     public void produceEvent(){
         hourlyEventProducer.sendHourlyEvent();
         log.info("Produced Hourly Event");

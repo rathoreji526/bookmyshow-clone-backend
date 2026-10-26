@@ -110,10 +110,10 @@ public class ShowService {
         return showRepo.existsById(id);
     }
 
-    @Scheduled(fixedRate = 1000*60*5)
+    @Scheduled(fixedRate = 1000*60*60*6) //6hr
     public void updateShowStatus(){
         int modified = showRepo.updateShowStatus(LocalDateTime.now());
-        log.info("{} shows updated", modified);
+        log.info("{} shows updated #6hr schedular.", modified);
     }
     public List<Show> findUpcomingShowsBasedOnCity(String city){
         List<Show> shows = showRepo.findByCity(city, LocalDateTime.now());
