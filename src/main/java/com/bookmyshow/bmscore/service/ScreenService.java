@@ -14,6 +14,7 @@ import com.bookmyshow.bmscore.repository.SeatRepository;
 import com.bookmyshow.bmscore.repository.TheaterRepository;
 import com.bookmyshow.bmscore.requestDTO.CreateScreenDTO;
 import com.bookmyshow.bmscore.requestDTO.SeatLayoutDTO;
+import com.bookmyshow.bmscore.responseDTO.ScreenResponse;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +92,7 @@ public class ScreenService {
         return screenRepo.findById(id)
                 .orElseThrow(()->new ScreenNotFoundException("Screen with id: "+id+" not found."));
     }
-    public List<Screen> findByTheaterId(UUID theaterID){
+    public List<ScreenResponse> findByTheaterId(UUID theaterID){
         return screenRepo.findByTheaterId(theaterID);
     }
 }

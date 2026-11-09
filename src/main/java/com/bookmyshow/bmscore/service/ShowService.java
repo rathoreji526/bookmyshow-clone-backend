@@ -8,6 +8,7 @@ import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,6 @@ public class ShowService {
 
     @Transactional
     public UUID createShow(CreateShowRequestDTO dto){
-        Theater theater = theaterService.findById(dto.getTheaterId());
         Movie movie = movieService.findById(dto.getMovieId());
         Screen screen = screenService.findById(dto.getScreenId());
         List<Show> overlappingShows = showRepo.findOverlappingShows(dto.getScreenId(), dto.getStartTime().minusMinutes(15), dto.getEndTime().plusMinutes(15));
@@ -119,5 +119,7 @@ public class ShowService {
         List<Show> shows = showRepo.findByCity(city, LocalDateTime.now());
         return shows;
     }
-
+    public List<MovieResponse> findUpcomingShowMovie(){
+        return showRepo.getUpcomingShowMovies(LocalDateTime.now());
+    }
 }

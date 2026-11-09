@@ -1,6 +1,8 @@
 package com.bookmyshow.bmscore.repository;
 
+import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -48,4 +50,15 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
             """
     )
     public List<Show> findByCity(String city, LocalDateTime now);
+    @Query("""
+            select distinct m.id as id,
+               m.name as name,
+               m.description as description,
+               m.posterUrl as posterUrl,
+               m.rating as rating
+            from Show s
+            join s.movie m
+            where s.startTime > :now
+            """)
+    public List<MovieResponse> getUpcomingShowMovies(LocalDateTime now);
 }

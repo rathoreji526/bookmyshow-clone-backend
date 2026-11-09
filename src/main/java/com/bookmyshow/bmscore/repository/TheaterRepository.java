@@ -1,6 +1,7 @@
 package com.bookmyshow.bmscore.repository;
 
 import com.bookmyshow.bmscore.models.Theater;
+import com.bookmyshow.bmscore.responseDTO.TheaterResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -16,6 +17,6 @@ public interface TheaterRepository extends JpaRepository<Theater, UUID> {
             where t.location.city = :city
             """)
     public List<UUID> findByCity(String city);
-    public List<Theater> findByLocationCity(String city);
-    public List<Theater> findByOwnerUsername(String username);
+    public List<TheaterResponse> findByLocationCity(String city);
+    public List<TheaterResponse> findByOwnerUsername(String username);
 }

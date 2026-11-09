@@ -1,18 +1,17 @@
 package com.bookmyshow.bmscore.controller;
 
-import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.requestDTO.AddMovieDTO;
 import com.bookmyshow.bmscore.requestDTO.DateRangeDTO;
-import com.bookmyshow.bmscore.requestDTO.MovieIdName;
+import com.bookmyshow.bmscore.responseDTO.MovieIdName;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
+import com.bookmyshow.bmscore.responseDTO.UpcomingMovieResponse;
 import com.bookmyshow.bmscore.service.MovieService;
-import com.bookmyshow.bmscore.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -20,10 +19,11 @@ import java.util.List;
 public class MovieController {
     @Autowired
     private MovieService movieService;
+
     @GetMapping("/findByDateRange")
     public ResponseEntity<?> findByDateRange(@RequestBody DateRangeDTO dto){
         try{
-            List<Movie> movies =  movieService.findByDateRange(dto);
+            List<MovieResponse> movies =  movieService.findByDateRange(dto);
             return new ResponseEntity<>(movies , HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>("Unable to fetch movies" , HttpStatus.INTERNAL_SERVER_ERROR);
@@ -45,11 +45,12 @@ public class MovieController {
     public List<MovieIdName> getAllMovies(){
         return movieService.findAllMovieIdAndName();
     }
+
     @GetMapping("/top-ten-movies")
-    public ResponseEntity<List<Movie>> findTopTenShowsInLast30Days(){
+    public ResponseEntity<?> findTopTenShowsInLast30Days(){
         try{
-            List<Movie> movies =  movieService.findTopTenMovies();
-            return new ResponseEntity<>(movies, HttpStatus.OK);
+            List<MovieResponse> movies =  movieService.findTopTenMovies();
+            return new ResponseEntity<>(movies.isEmpty() ? "No movies found!" : movies, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -58,8 +59,8 @@ public class MovieController {
     @GetMapping("/upcoming-movies")
     public ResponseEntity<?> findUpcomingMovies(){
         try{
-            List<Movie> movies =  movieService.findUpcomingMovies();
-            return new ResponseEntity<>(movies , HttpStatus.OK);
+            List<UpcomingMovieResponse> movies =  movieService.findUpcomingMovies();
+            return new ResponseEntity<>(movies.isEmpty() ? "No upcoming movies found" : movies , HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -7,7 +7,9 @@ import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.repository.MovieRepository;
 import com.bookmyshow.bmscore.requestDTO.AddMovieDTO;
 import com.bookmyshow.bmscore.requestDTO.DateRangeDTO;
-import com.bookmyshow.bmscore.requestDTO.MovieIdName;
+import com.bookmyshow.bmscore.responseDTO.MovieIdName;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
+import com.bookmyshow.bmscore.responseDTO.UpcomingMovieResponse;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -48,11 +50,11 @@ public class MovieService {
         return "Movie added successfully.";
     }
 
-    public List<Movie> findByDateRange(DateRangeDTO dto){
+    public List<MovieResponse> findByDateRange(DateRangeDTO dto){
         if(dto.getStartDate().isAfter(dto.getEndDate()) || (dto.getStartDate()==null || dto.getEndDate()==null)){
             throw new InvalidInputException("Please enter a valid date range.");
         }
-        List<Movie> movies =  movieRepo.findByReleaseDateBetween(dto.getStartDate() , dto.getEndDate());
+        List<MovieResponse> movies =  movieRepo.findByReleaseDateBetween(dto.getStartDate() , dto.getEndDate());
         return movies;
     }
 
@@ -70,11 +72,11 @@ public class MovieService {
     public List<Movie> findAll(){
         return movieRepo.findAll();
     }
-    public List<Movie> findTopTenMovies(){
+    public List<MovieResponse> findTopTenMovies(){
         return bookingService.findTop10Shows();
     }
-    public List<Movie> findUpcomingMovies(){
-        return movieRepo.findUpcomingMovies(LocalDateTime.now());
+    public List<UpcomingMovieResponse> findUpcomingMovies(){
+        return movieRepo.findByReleaseDateAfter(LocalDateTime.now());
     }
 }
 

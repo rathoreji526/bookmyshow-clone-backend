@@ -7,6 +7,7 @@ import com.bookmyshow.bmscore.kafka.producer.BookingConfirmedEventProducer;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,7 +151,7 @@ public class BookingService {
         int countBookingsInACity = bookingRepo.getBookingsInACity(theatersInACity , movieId);
         return countBookingsInACity;
     }
-    public List<Movie> findTop10Shows(){
+    public List<MovieResponse> findTop10Shows(){
         Pageable pageable = PageRequest.of(0,10);
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
         return bookingRepo.findTopTenShowsInLast30Days(thirtyDaysAgo, pageable);

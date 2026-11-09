@@ -12,7 +12,7 @@ spring:
       connection-timeout: 20000
   jpa:
     hibernate:
-      ddl-auto: validate #don't inspect db everytime tables are already created!
+      ddl-auto: validate #don't inspect db everytime tables are already created! update <-> validate
     show-sql: true
   mail:
     test-connection: false

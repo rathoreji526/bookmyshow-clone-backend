@@ -4,6 +4,7 @@ import com.bookmyshow.bmscore.models.Booking;
 
 import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.User;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,6 @@ import java.util.UUID;
 
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
     public Optional<Booking> findByTransactionId(UUID transactionId);
-    public List<Booking>  findByUserId(UUID userId);
     public List<Booking> findByUserUsername(String username);
 
     @Query("""
@@ -37,13 +37,22 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     public int getBookingsInACity(@Param("theaterIds") List<UUID> theaterIds,
                                   @Param("movieId") UUID movieId);
     @Query("""
-            select b.show.movie
-            from Booking b
-            where b.createdAt > :thirtyDaysAgo
-            group by b.show.movie
-            order by count(b.id) desc
-            """)
-    public List<Movie> findTopTenShowsInLast30Days(LocalDateTime thirtyDaysAgo, Pageable pageable);
+        select m.id as id,
+               m.name as name,
+               m.description as description,
+               m.posterUrl as posterUrl,
+               m.rating as rating
+        from Booking b
+        join b.show s
+        join s.movie m
+        where b.createdAt > :thirtyDaysAgo
+        group by m.id, m.name, m.description, m.posterUrl, m.rating
+        order by count(b.id) desc
+        """)
+    List<MovieResponse> findTopTenShowsInLast30Days(
+            @Param("thirtyDaysAgo") LocalDateTime thirtyDaysAgo,
+            Pageable pageable
+    );
 
 }
 /*

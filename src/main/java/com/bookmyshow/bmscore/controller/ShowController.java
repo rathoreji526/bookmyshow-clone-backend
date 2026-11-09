@@ -4,6 +4,7 @@ import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
+import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import com.bookmyshow.bmscore.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,16 @@ public class ShowController {
         try {
             List<Show> shows = showService.findUpcomingShowsBasedOnCity(city);
             return new ResponseEntity<>(shows.isEmpty() ? "Sorry!, Currently there is not any show in this city!" : shows, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage() , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/now-showing-movies")
+    public ResponseEntity<?> findNowShowingMovies(){
+        try{
+            List<MovieResponse> movies = showService.findUpcomingShowMovie();
+            return new ResponseEntity<>(movies.isEmpty()?"No upcoming shows found!" : movies, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage() , HttpStatus.INTERNAL_SERVER_ERROR);
         }

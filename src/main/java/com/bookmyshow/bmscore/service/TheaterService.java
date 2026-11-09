@@ -9,6 +9,7 @@ import com.bookmyshow.bmscore.models.User;
 import com.bookmyshow.bmscore.repository.TheaterRepository;
 import com.bookmyshow.bmscore.requestDTO.LocationRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.RegisterTheaterRequestDTO;
+import com.bookmyshow.bmscore.responseDTO.TheaterResponse;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -81,10 +82,10 @@ public class TheaterService {
         return theaterRepo.findByCity(city);
     }
 
-    public List<Theater> findTheatersByCity(String city){
+    public List<TheaterResponse> findTheatersByCity(String city){
         return theaterRepo.findByLocationCity(city);
     }
-    public List<Theater> findByOwnerId(String username){
+    public List<TheaterResponse> findByOwnerId(String username){
         return theaterRepo.findByOwnerUsername(username);
     }
     public List<Theater> findAllTheaters(){

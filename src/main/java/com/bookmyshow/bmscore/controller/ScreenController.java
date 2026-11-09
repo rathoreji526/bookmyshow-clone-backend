@@ -2,6 +2,7 @@ package com.bookmyshow.bmscore.controller;
 
 import com.bookmyshow.bmscore.models.Screen;
 import com.bookmyshow.bmscore.requestDTO.CreateScreenDTO;
+import com.bookmyshow.bmscore.responseDTO.ScreenResponse;
 import com.bookmyshow.bmscore.service.ScreenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,12 @@ public class ScreenController {
         }
     }
     @GetMapping("/findBytheaterId")
-    public List<Screen> findByTheaterId(@RequestParam UUID theaterID){
-        return screenService.findByTheaterId(theaterID);
+    public ResponseEntity<?> findByTheaterId(@RequestParam UUID theaterID){
+       try{
+           List<ScreenResponse> screens = screenService.findByTheaterId(theaterID);
+           return new ResponseEntity<>(screens.isEmpty() ? "No screens found" : screens, HttpStatus.OK);
+       }catch (Exception e){
+           return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+       }
     }
 }

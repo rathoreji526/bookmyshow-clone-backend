@@ -1,4 +1,4 @@
-package com.bookmyshow.bmscore.requestDTO;
+package com.bookmyshow.bmscore.responseDTO;
 
 import java.util.UUID;
 
