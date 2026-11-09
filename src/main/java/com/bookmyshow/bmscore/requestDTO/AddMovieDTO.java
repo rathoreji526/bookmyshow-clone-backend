@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class AddMovieDTO {
+    private String description;
     private String name;
     private Integer duration;
     private Language language;

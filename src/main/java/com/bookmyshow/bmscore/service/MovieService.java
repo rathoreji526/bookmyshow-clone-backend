@@ -42,6 +42,7 @@ public class MovieService {
         movie.setRating(dto.getRating());
         movie.setReleaseDate(dto.getReleaseDate());
         movie.setLanguage(dto.getLanguage());
+        movie.setPosterUrl(dto.getPosterUrl());
         if(movieRepo.existsByName(movieName)){
             throw new MovieAlreadyExistsException("Movie already exists.");
         }

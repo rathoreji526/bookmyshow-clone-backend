@@ -43,6 +43,7 @@ public class JwtConfiguration {
                                         "/apis/booking/initiate-payment",
                                         "/apis/transaction/make-payment",
                                         "/apis/show/find-show",
+                                        "/apis/show/now-showing-movies",
                                         "/apis/theater/register-theater",
                                         "/apis/theater/getAllTheaterByCity/**",
                                         "/health"

@@ -55,7 +55,8 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
                m.name as name,
                m.description as description,
                m.posterUrl as posterUrl,
-               m.rating as rating
+               m.rating as rating,
+               m.releaseDate as releaseDate
             from Show s
             join s.movie m
             where s.startTime > :now
