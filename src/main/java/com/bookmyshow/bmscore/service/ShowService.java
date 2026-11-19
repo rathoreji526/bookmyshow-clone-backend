@@ -95,11 +95,11 @@ public class ShowService {
         return show.getId();
     }
 
-    public List<Show> findShow(FindShowDTO dto){
-        if(!movieService.existsById(dto.getMovieId())){
-            throw new MovieNotFoundException("Movie with id: "+dto.getMovieId()+" not found.");
+    public List<Show> findShow(UUID movieId){
+        if(!movieService.existsById(movieId)){
+            throw new MovieNotFoundException("Movie with id: "+movieId+" not found.");
         }
-        return showRepo.findByMovieIdAndStartTimeAfter(dto.getMovieId() , dto.getDate());
+        return showRepo.findByMovieIdAndStartTimeAfter(movieId , LocalDateTime.now());
     }
 
     public Show findById(UUID id){

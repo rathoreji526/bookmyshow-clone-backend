@@ -39,6 +39,7 @@ public class MovieService {
         Movie movie = new Movie();
         movie.setName(movieName);
         movie.setDuration(dto.getDuration());
+        movie.setDescription(dto.getDescription());
         movie.setRating(dto.getRating());
         movie.setReleaseDate(dto.getReleaseDate());
         movie.setLanguage(dto.getLanguage());

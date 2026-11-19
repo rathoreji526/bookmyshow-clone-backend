@@ -34,9 +34,9 @@ public class ShowController {
     }
 
     @GetMapping("/find-show")
-    public ResponseEntity<?> findShow(@RequestBody FindShowDTO dto){
+    public ResponseEntity<?> findShow(@RequestParam UUID movieId){
         try{
-            List<Show> shows = showService.findShow(dto);
+            List<Show> shows = showService.findShow(movieId);
             return new ResponseEntity<>(shows, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage() , HttpStatus.BAD_REQUEST);
