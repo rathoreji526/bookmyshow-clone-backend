@@ -2,6 +2,7 @@ package com.bookmyshow.bmscore.repository;
 
 import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
+import com.bookmyshow.bmscore.responseDTO.FindShowResponse;
 import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 public interface ShowRepository extends JpaRepository<Show, UUID> {
     public boolean existsBySysId(String sysId);
-    public List<Show> findByMovieIdAndStartTimeAfter(UUID movieId , LocalDateTime time);
+    public List<FindShowResponse> findByMovieIdAndStartTimeAfter(UUID movieId , LocalDateTime time);
     @Query("""
     select s from Show s
     where s.screen.id = :screenId

@@ -4,6 +4,7 @@ import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
+import com.bookmyshow.bmscore.responseDTO.FindShowResponse;
 import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import com.bookmyshow.bmscore.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class ShowController {
     @GetMapping("/find-show")
     public ResponseEntity<?> findShow(@RequestParam UUID movieId){
         try{
-            List<Show> shows = showService.findShow(movieId);
+            List<FindShowResponse> shows = showService.findShow(movieId);
             return new ResponseEntity<>(shows, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage() , HttpStatus.BAD_REQUEST);

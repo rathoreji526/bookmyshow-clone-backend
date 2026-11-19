@@ -8,6 +8,7 @@ import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
+import com.bookmyshow.bmscore.responseDTO.FindShowResponse;
 import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
@@ -95,7 +96,7 @@ public class ShowService {
         return show.getId();
     }
 
-    public List<Show> findShow(UUID movieId){
+    public List<FindShowResponse> findShow(UUID movieId){
         if(!movieService.existsById(movieId)){
             throw new MovieNotFoundException("Movie with id: "+movieId+" not found.");
         }
