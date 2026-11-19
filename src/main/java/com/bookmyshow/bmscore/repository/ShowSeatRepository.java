@@ -1,6 +1,7 @@
 package com.bookmyshow.bmscore.repository;
 
 import com.bookmyshow.bmscore.models.ShowSeat;
+import com.bookmyshow.bmscore.responseDTO.ShowSeatResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -37,6 +38,6 @@ public interface ShowSeatRepository extends JpaRepository<ShowSeat, UUID> {
 """)
     public int releaseLockedSeat(LocalDateTime now);
     public List<ShowSeat> findByIdIn(List<UUID> showSeatIds);
-    public List<ShowSeat> findByShowId(UUID showId);
+    public List<ShowSeatResponse> findByShowId(UUID showId);
     public boolean existsByShowId(UUID showId);
 }

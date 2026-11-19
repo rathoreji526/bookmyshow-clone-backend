@@ -15,4 +15,6 @@ public interface FindShowResponse {
     String getCity();
     @Value("#{target.screen.theater.location.zipcode}")
     String getZipcode();
+    @Value("#{target.screen.theater.name}")
+    String getTheaterName();
 }

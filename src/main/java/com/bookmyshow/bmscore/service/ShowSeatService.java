@@ -4,6 +4,7 @@ import com.bookmyshow.bmscore.customExceptions.InvalidShowIdException;
 import com.bookmyshow.bmscore.customExceptions.SeatAlreadyBookedOrLockedException;
 import com.bookmyshow.bmscore.models.ShowSeat;
 import com.bookmyshow.bmscore.repository.ShowSeatRepository;
+import com.bookmyshow.bmscore.responseDTO.ShowSeatResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class ShowSeatService {
         }
 
     }
-    public List<ShowSeat> findAllByShowId(UUID showId) {
+    public List<ShowSeatResponse> findAllByShowId(UUID showId) {
         if(!showSeatRepo.existsByShowId(showId)) {
             throw new InvalidShowIdException("Wrong show id!");
         }

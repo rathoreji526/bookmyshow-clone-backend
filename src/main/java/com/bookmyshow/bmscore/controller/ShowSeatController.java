@@ -3,7 +3,9 @@ package com.bookmyshow.bmscore.controller;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.models.ShowSeat;
 import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
+import com.bookmyshow.bmscore.responseDTO.ShowSeatResponse;
 import com.bookmyshow.bmscore.service.ShowSeatService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/apis/seat")
 public class ShowSeatController {
@@ -29,12 +32,13 @@ public class ShowSeatController {
 //    }
 
     @GetMapping("/getAllShowSeats")
-    public ResponseEntity<List<ShowSeat>> getAllShowSeats(@RequestParam UUID showId){
+    public ResponseEntity<?> getAllShowSeats(@RequestParam UUID showId){
         try{
-            List<ShowSeat> showSeats = showSeatService.findAllByShowId(showId);
+            List<ShowSeatResponse> showSeats = showSeatService.findAllByShowId(showId);
             return new  ResponseEntity<>(showSeats, HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
