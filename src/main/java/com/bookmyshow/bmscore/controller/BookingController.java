@@ -23,9 +23,12 @@ public class BookingController {
     BookingService bookingService;
 
     @PostMapping("/initiate-payment")
-    public ResponseEntity<String> initiatePayment(@RequestBody InitiatePaymentRequestDTO dto){
+    public ResponseEntity<String> initiatePayment(
+            @RequestBody InitiatePaymentRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
         try{
-            UUID transactionId = bookingService.initiatePayment(dto);
+            UUID transactionId = bookingService.initiatePayment(dto,userDetails);
             return new ResponseEntity<>("Complete your payment to confirm booking.\nTransaction id: "+transactionId, HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

@@ -6,8 +6,7 @@ import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.models.User;
 import com.bookmyshow.bmscore.repository.BookingRepository;
-import com.bookmyshow.bmscore.service.BookingService;
-import com.bookmyshow.bmscore.service.EmailService;
+import com.bookmyshow.bmscore.service.AppsScriptEmailService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class BookingConfirmedEventConsumer {
     @Autowired
-    private EmailService emailService;
+    private AppsScriptEmailService appsScriptEmailService;
     @Autowired
     private BookingRepository bookingRepository;
 
@@ -33,7 +32,7 @@ public class BookingConfirmedEventConsumer {
                         .orElseThrow(()-> new BookingNotFoundException("Booking not found!"));
         User user = booking.getUser();
         Show show = booking.getShow();
-        emailService.sendTicketOnEmail(
+        appsScriptEmailService.sendTicketOnEmail(
                 user.getEmail(),
                 "Booking confirmed.",
                 user.getName(),

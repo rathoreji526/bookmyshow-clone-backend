@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 public class InitiatePaymentRequestDTO {
-    private UUID userId;
+//    private UUID userId;
     private List<UUID> showSeatIds;
     private UUID showId;
 }

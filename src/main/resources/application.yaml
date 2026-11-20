@@ -14,19 +14,6 @@ spring:
     hibernate:
       ddl-auto: validate #don't inspect db everytime tables are already created! update <-> validate
     show-sql: true
-  mail:
-    test-connection: false
-    host: smtp.gmail.com
-    port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GMAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     listener:
@@ -48,6 +35,11 @@ spring:
       properties:
           spring.json.trusted.packages: "*"
           spring.json.value.default.type: com.bookmyshow.bmscore.kafka.events.TransactionEvent
+app:
+  mail:
+    webhook-url: ${APPS_SCRIPT_MAIL_URL}
+    webhook-token: ${APPS_SCRIPT_MAIL_TOKEN}
+    sender-name: MoviePlace
 jwt:
   secret: ${SECRET_PASSWORD}
   expiration: ${EXPIRATION}

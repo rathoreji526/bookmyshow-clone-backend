@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -40,11 +41,12 @@ public class BookingService {
     private BookingConfirmedEventProducer bookingConfirmedEventProducer;
 
     @Transactional
-    public UUID initiatePayment(InitiatePaymentRequestDTO dto) {
-        //lock seat first
-        showSeatService.lockSeat(dto.getShowSeatIds() , dto.getUserId() , dto.getShowId());
+    public UUID initiatePayment(InitiatePaymentRequestDTO dto, UserDetails userDetails) {
+        //fetch user
+        User user = userService.findByUsername(userDetails.getUsername());
+        //lock seat
+        showSeatService.lockSeat(dto.getShowSeatIds() , user.getId() , dto.getShowId());
 
-        User user = userService.findById(dto.getUserId());
         Set<UUID> showSeatIDs = new HashSet<>(dto.getShowSeatIds());
         List<ShowSeat> showSeatList = showSeatService.findByIdIn(dto.getShowSeatIds());
 
@@ -57,7 +59,7 @@ public class BookingService {
             if(ss.getLockedBy()==null || !ss.getSeatStatus().equals(SeatStatus.LOCKED)){
                 throw new SeatNotLockedException("Seat is not locked! Please go back to the seat selection page and retry.");
             }
-            if (!ss.getLockedBy().equals(dto.getUserId())) {
+            if (!ss.getLockedBy().equals(user.getId())) {
                 throw new SeatAlreadyBookedOrLockedException("Seat booked or locked by another user");
             }
             if (ss.getLockExpiry().isBefore(LocalDateTime.now())) {
