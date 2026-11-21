@@ -8,6 +8,7 @@ import com.bookmyshow.bmscore.responseDTO.ShowSeatResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,7 +50,7 @@ public class ShowSeatService {
         showSeatRepo.saveAll(showSeats);
     }
 
-//    @Scheduled(fixedDelay = 1000*60*1)
+    @Scheduled(fixedDelay = 1000*60*10)//10min
     public void autoReleaseSeats(){
         int releasedSeats = showSeatRepo.releaseLockedSeat(LocalDateTime.now());
         log.info("Released "+releasedSeats+" seats.");

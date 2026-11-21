@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,7 +37,7 @@ public class Booking extends GlobalFields{
 
     @JsonManagedReference
     @OneToMany(mappedBy = "booking")
-    private List<ShowSeat> bookedSeats;
+    private List<ShowSeat> bookedSeats = new ArrayList<>();
 
     private LocalDateTime bookingExpiry;
 

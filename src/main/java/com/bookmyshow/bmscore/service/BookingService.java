@@ -49,7 +49,6 @@ public class BookingService {
 
         Set<UUID> showSeatIDs = new HashSet<>(dto.getShowSeatIds());
         List<ShowSeat> showSeatList = showSeatService.findByIdIn(dto.getShowSeatIds());
-
         Double bookingValue = 0.0;
         if (showSeatIDs.size() != showSeatList.size()) {
             throw new SeatNotExistsException("Some seats do not exist");
@@ -87,7 +86,6 @@ public class BookingService {
     @Transactional
     public void handleConfirmedTransaction(UUID txnId) {
         Booking booking = findByTransactionId(txnId);
-        log.info("booking fetched from DB, bookingId: "+booking.getId());
 
         if(!booking.getBookingStatus().equals(BookingStatus.PENDING)){
             return;
