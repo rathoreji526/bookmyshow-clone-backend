@@ -7,6 +7,7 @@ import com.bookmyshow.bmscore.kafka.producer.BookingConfirmedEventProducer;
 import com.bookmyshow.bmscore.models.*;
 import com.bookmyshow.bmscore.repository.*;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
+import com.bookmyshow.bmscore.responseDTO.InitiatePaymentResponseDTO;
 import com.bookmyshow.bmscore.responseDTO.MovieResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class BookingService {
     private BookingConfirmedEventProducer bookingConfirmedEventProducer;
 
     @Transactional
-    public UUID initiatePayment(InitiatePaymentRequestDTO dto, UserDetails userDetails) {
+    public InitiatePaymentResponseDTO initiatePayment(InitiatePaymentRequestDTO dto, UserDetails userDetails) {
         //fetch user
         User user = userService.findByUsername(userDetails.getUsername());
         //lock seat
@@ -80,7 +81,11 @@ public class BookingService {
         user.getBookings().add(booking);
         bookingRepo.save(booking);
 
-        return transaction.getId();
+        InitiatePaymentResponseDTO response = new InitiatePaymentResponseDTO();
+        response.setMessage("Complete your transaction.");
+        response.setTxnId(transaction.getId());
+
+        return response;
     }
 
     @Transactional

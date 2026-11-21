@@ -4,6 +4,7 @@ import com.bookmyshow.bmscore.models.Booking;
 import com.bookmyshow.bmscore.models.User;
 import com.bookmyshow.bmscore.requestDTO.InitiatePaymentRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.SeatLockingRequestDTO;
+import com.bookmyshow.bmscore.responseDTO.InitiatePaymentResponseDTO;
 import com.bookmyshow.bmscore.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,13 @@ public class BookingController {
     BookingService bookingService;
 
     @PostMapping("/initiate-payment")
-    public ResponseEntity<String> initiatePayment(
+    public ResponseEntity<?> initiatePayment(
             @RequestBody InitiatePaymentRequestDTO dto,
             @AuthenticationPrincipal UserDetails userDetails
     ){
         try{
-            UUID transactionId = bookingService.initiatePayment(dto,userDetails);
-            return new ResponseEntity<>("Complete your payment to confirm booking.\nTransaction id: "+transactionId, HttpStatus.OK);
+            InitiatePaymentResponseDTO response = bookingService.initiatePayment(dto,userDetails);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

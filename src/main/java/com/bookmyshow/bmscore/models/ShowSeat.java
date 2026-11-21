@@ -19,6 +19,7 @@ import java.util.UUID;
        })
 public class ShowSeat extends GlobalFields{
     @ManyToOne
+    @JsonBackReference
     private Booking booking;
     private double price;
     @JsonBackReference
