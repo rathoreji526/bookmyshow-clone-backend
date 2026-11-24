@@ -47,7 +47,7 @@ public class ShowController {
     @GetMapping("/find-by-city/{city}")
     public ResponseEntity<?> findShowByCity(@PathVariable String city){
         try {
-            List<Show> shows = showService.findUpcomingShowsBasedOnCity(city);
+            List<FindShowResponse> shows = showService.findUpcomingShowsBasedOnCity(city);
             return new ResponseEntity<>(shows.isEmpty() ? "Sorry!, Currently there is not any show in this city!" : shows, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage() , HttpStatus.INTERNAL_SERVER_ERROR);

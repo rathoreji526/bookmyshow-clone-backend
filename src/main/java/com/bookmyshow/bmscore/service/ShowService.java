@@ -117,8 +117,8 @@ public class ShowService {
         int modified = showRepo.updateShowStatus(LocalDateTime.now());
         log.info("{} shows updated #6hr schedular.", modified);
     }
-    public List<Show> findUpcomingShowsBasedOnCity(String city){
-        List<Show> shows = showRepo.findByCity(city, LocalDateTime.now());
+    public List<FindShowResponse> findUpcomingShowsBasedOnCity(String city){
+        List<FindShowResponse> shows = showRepo.findByScreenTheaterLocationCityAndStartTimeAfter(city, LocalDateTime.now());
         return shows;
     }
     public List<MovieResponse> findUpcomingShowMovie(){

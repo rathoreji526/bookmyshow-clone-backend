@@ -43,15 +43,7 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
     public int updateShowStatus(@Param("now") LocalDateTime now);
     public boolean existsById(UUID id);
     public int findByMovieId(UUID movieId);
-    @Query("""
-            select s
-            from Show s
-            where s.screen.theater.location.city = :city
-            and
-            s.startTime > :now
-            """
-    )
-    public List<Show> findByCity(String city, LocalDateTime now);
+    public List<FindShowResponse> findByScreenTheaterLocationCityAndStartTimeAfter(String city, LocalDateTime now);
     @Query("""
             select distinct m.id as id,
                m.name as name,
