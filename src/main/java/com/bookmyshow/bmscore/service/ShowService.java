@@ -10,6 +10,7 @@ import com.bookmyshow.bmscore.requestDTO.CreateShowRequestDTO;
 import com.bookmyshow.bmscore.requestDTO.FindShowDTO;
 import com.bookmyshow.bmscore.responseDTO.FindShowResponse;
 import com.bookmyshow.bmscore.responseDTO.MovieResponse;
+import com.bookmyshow.bmscore.responseDTO.UpcomingShowsCityResponse;
 import com.bookmyshow.bmscore.utilities.CommonUtilities;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -122,5 +123,8 @@ public class ShowService {
     }
     public List<MovieResponse> findUpcomingShowMovie(){
         return showRepo.getUpcomingShowMovies(LocalDateTime.now());
+    }
+    public List<UpcomingShowsCityResponse> findAllCitiesWithUpcomingShows(){
+        return showRepo.findDistinctCitiesWithUpcomingShows(LocalDateTime.now());
     }
 }

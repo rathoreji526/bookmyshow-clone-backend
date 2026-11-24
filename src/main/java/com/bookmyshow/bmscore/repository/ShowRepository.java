@@ -4,6 +4,7 @@ import com.bookmyshow.bmscore.models.Movie;
 import com.bookmyshow.bmscore.models.Show;
 import com.bookmyshow.bmscore.responseDTO.FindShowResponse;
 import com.bookmyshow.bmscore.responseDTO.MovieResponse;
+import com.bookmyshow.bmscore.responseDTO.UpcomingShowsCityResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -63,4 +64,10 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
             where s.startTime > :now
             """)
     public List<MovieResponse> getUpcomingShowMovies(LocalDateTime now);
+    @Query("""
+            select distinct s.screen.theater.location.city as city
+            from Show s
+            where s.startTime > :now
+            """)
+    public List<UpcomingShowsCityResponse> findDistinctCitiesWithUpcomingShows(LocalDateTime now);
 }

@@ -42,6 +42,7 @@ public class JwtConfiguration {
                                         "/apis/seat/getAllShowSeats",
                                         "/apis/show/find-show",
                                         "/apis/show/now-showing-movies",
+                                        "/apis/show/cities-with-upcoming-shows",
                                         "/apis/theater/register-theater",
                                         "/apis/theater/getAllTheaterByCity/**",
                                         "/health"
